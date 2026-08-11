@@ -1,12 +1,12 @@
 import React, { useEffect, useRef, useState } from "react";
 import {
   Send, Search, Bookmark, ThumbsUp, ThumbsDown, ArrowLeft,
-  ChevronRight, AlertTriangle,
+  ChevronRight, AlertTriangle, Bell,
   Thermometer, Package, Syringe, CalendarDays, ClipboardList, Home,
   MessageCircle, GraduationCap, User, Sparkles, Globe2,
   Download, CheckCircle, Star, LogOut, Box, FileQuestion, Phone, ShieldCheck,
   Wifi, WifiOff, PlayCircle,
-  BookOpen, Truck, Gauge, FlaskConical, Wrench, ShieldAlert, MapPin, Users
+  BookOpen, Truck, Gauge, FlaskConical, Wrench, ShieldAlert, MapPin, Users, Info
 } from "lucide-react";
 
 /*
@@ -154,6 +154,30 @@ const KB = [
     q: "How often should refrigerators be defrosted?",
     a: "Defrost refrigerators regularly — at least every month — or when the ice thickness exceeds 0.5 cm. Move vaccines to another cold chain device first, switch off/extinguish the power source, and never use a knife or ice pick to remove ice.",
     keywords: ["defrost", "defrosting", "ice thickness", "preventive maintenance"] },
+  { id: "KB-Q01", domain: "Stock Management", label: "Stock Management", source: "IIP Ch 8.2 / 8.3",
+    q: "What causes poor data quality and how do I fix it?",
+    a: "Common causes: tally marks not matching the register, register totals not reconciled monthly, late or missing entries, and stock balances not physically verified. Improve accuracy by recording immediately after each session (not from memory later), reconciling the tally sheet against the register and ledger book at the end of every day, doing a monthly physical stock count (RDQA), and having a second person countercheck totals before they are reported upward.",
+    keywords: ["data quality", "rdqa", "reconciliation", "accuracy", "recording error", "tally mismatch"] },
+  { id: "KB-V01", domain: "Cold Chain", label: "Cold Chain", source: "IIP Ch 1 / Annex — Vaccine storage & dosage table",
+    q: "What are the storage and dosage details for each vaccine?",
+    a: "Each vaccine has its own storage temperature, freeze/heat sensitivity, dose, route and schedule age — see the Vaccine Storage & Dosage reference inside Cold Chain for the full organized list (BCG, bOPV, IPV, Penta, PCV-13, Rota, Measles, HPV, Td).",
+    keywords: ["vaccine reference", "dosage", "storage", "route", "which vaccine"] },
+];
+
+/* ===========================
+   Vaccine Storage & Dosage Reference (Feedback item 8)
+   Organized per-vaccine fields, sourced from IIP Ch 1 / Ch 2.6
+   =========================== */
+const VACCINE_REFERENCE = [
+  { name: "BCG", storage: "+2°C to +8°C", sensitivity: "Very heat-sensitive; protect from light. Reconstituted: discard within 6 hrs.", dose: "0.05 mL", route: "Intradermal, right upper arm", schedule: "At birth" },
+  { name: "bOPV (Oral Polio)", storage: "+2°C to +8°C (or frozen at central level)", sensitivity: "Very heat-sensitive — track VVM closely", dose: "2 drops", route: "Oral", schedule: "Birth (bOPV-0), 6/10/14 weeks" },
+  { name: "Penta (DTP-HepB-Hib)", storage: "+2°C to +8°C", sensitivity: "Freeze-sensitive — never freeze", dose: "0.5 mL", route: "Intramuscular, outer mid-thigh", schedule: "6, 10, 14 weeks" },
+  { name: "PCV-13 (Pneumococcal)", storage: "+2°C to +8°C", sensitivity: "Freeze-sensitive — never freeze", dose: "0.5 mL", route: "Intramuscular, opposite thigh from Penta", schedule: "6, 10, 14 weeks" },
+  { name: "Rota (Rotavirus)", storage: "+2°C to +8°C", sensitivity: "Freeze-sensitive — never freeze", dose: "1.5 mL (liquid, 2-dose schedule)", route: "Oral", schedule: "6, 10 weeks" },
+  { name: "IPV (Inactivated Polio)", storage: "+2°C to +8°C", sensitivity: "Freeze-sensitive — never freeze", dose: "0.5 mL", route: "Intramuscular, right thigh", schedule: "14 weeks" },
+  { name: "Measles", storage: "+2°C to +8°C", sensitivity: "Very heat-sensitive. Reconstituted: discard within 6 hrs of opening or end of session.", dose: "0.5 mL", route: "Subcutaneous, left upper arm", schedule: "9 months (Measles-1), 15 months (Measles-2)" },
+  { name: "HPV", storage: "+2°C to +8°C", sensitivity: "Freeze-sensitive — never freeze", dose: "0.5 mL", route: "Intramuscular, upper arm", schedule: "Girls age 14 (per national schedule)" },
+  { name: "Td (Tetanus-diphtheria)", storage: "+2°C to +8°C", sensitivity: "Freeze-sensitive — never freeze", dose: "0.5 mL", route: "Intramuscular, upper arm", schedule: "Pregnant women / school age, per contact schedule" },
 ];
 
 const FAQS = [
@@ -169,11 +193,14 @@ const FAQS = [
   { q: "When is Measles-1 given?", a: "At 9 months (Measles-2 at 15 months).", source: "IIP Ch 1.2.1", domain: "schedule" },
   { q: "What is the full routine immunization schedule?", a: "At birth: BCG, bOPV-0, HepB birth dose. 6 weeks: bOPV-1, Penta-1, PCV-1, Rota-1. 10 weeks: bOPV-2, Penta-2, PCV-2, Rota-2. 14 weeks: bOPV-3, IPV, Penta-3, PCV-3. 9 months: Measles-1. 15 months: Measles-2.", source: "IIP Ch 1.2.1", domain: "schedule" },
   { q: "Which population base is used to forecast BCG?", a: "Live Birth is used for BCG, HepB birth dose, Td and bOPV; Surviving Infants is used for the remaining routine antigens.", source: "IIP Ch 1.2.1 / 2.2.1", domain: "schedule" },
+  { q: "What is the dose and route for BCG?", a: "0.05 mL, given intradermally in the right upper arm, at birth.", source: "IIP Ch 1 — Vaccine reference", domain: "schedule" },
+  { q: "What is the dose and route for Measles?", a: "0.5 mL, given subcutaneously in the left upper arm, at 9 months (Measles-1) and 15 months (Measles-2).", source: "IIP Ch 1 — Vaccine reference", domain: "schedule" },
 
   // Domain 5.2 — Injection Safety & Waste Management (IIP Ch 5)
   { q: "Where do used syringes go?", a: "Immediately into a safety box; never recap.", source: "IIP Ch 5.1", domain: "safety" },
   { q: "How do I ensure injection safety?", a: "Use a new AD (auto-disable) syringe for each injection, never recap needles, prevent needle-stick injuries, and dispose of used sharps immediately in a safety box.", source: "IIP Ch 5.1", domain: "safety" },
   { q: "How is immunization waste managed?", a: "Health-care waste is segregated by category and risk, collected, transported and stored safely within the facility, and disposed of by approved options. Sharps go into safety boxes; follow the facility waste-management procedure.", source: "IIP Ch 5.2", domain: "safety" },
+  { q: "When should a safety box be closed and removed?", a: "When it is three-quarters (¾) full — never wait until it is completely full — then seal it and follow the facility's approved disposal route.", source: "IIP Ch 5.1/5.2", domain: "safety" },
 
   // Domain 5.3 — Service Delivery & Administration (IIP Ch 6)
   { q: "Is this child eligible for vaccination today?", a: "Check the immunization card/register for doses due. If there is a contraindication (e.g. moderate-to-severe illness with fever ~39°C), postpone and advise return; otherwise confirm vaccine, dose, route and site, check VVM and expiry, administer, and record.", source: "IIP Ch 6.4–6.6", domain: "service" },
@@ -184,6 +211,8 @@ const FAQS = [
 
   // Domain 5.5 — Recording, Reporting & Data Use (IIP Ch 8)
   { q: "Which recording and reporting tools are used?", a: "Core tools include the child routine immunization register, infant immunization tally sheet, child immunization card, and the immunization monitoring chart. Data quality is assured through verification at PHCU level.", source: "IIP Ch 8.2 / Annexes 16–20", domain: "reporting" },
+  { q: "What causes poor data quality and how do I improve it?", a: "Mismatched tally/register entries, late recording, and skipped monthly stock verification are the main causes. Record immediately, reconcile daily, and do a monthly physical count (RDQA) with a second-person check.", source: "IIP Ch 8.2 / 8.3", domain: "reporting" },
+  { q: "How often should records be verified for accuracy?", a: "Reconcile the tally sheet, register and ledger book daily; do a full physical stock verification at least once a month at PHCU level.", source: "IIP Ch 8.3", domain: "reporting" },
 ];
 
 const FAQ_CATEGORIES = [
@@ -216,6 +245,8 @@ const JOB_AIDS = [
     content: "When receiving vaccines & supplies from the EPSS hub:\n1. Check the quantity on the STV against the actual count.\n2. Check the expiry date and VVM stage of all vaccines.\n3. Check the fridge tag / temperature recorded during transport.\n4. Confirm bundling (diluent, AD syringe, safety box, dropper).\n5. Store the vaccines by characteristic in the refrigerator.\n6. Write Model 19 and update the EPI ledger book." },
   { id: "ja-ledger", title: "Vaccine Ledger Book Basics", source: "IIP Ch 2.3.4",
     content: "For each vaccine/diluent/supply received or issued, record: purpose of collection/distribution, batch number, expiry date, VVM status, quantity, presentation (dose/vial), manufacturer, min-max stock levels, discarded and returned amounts.\nUpdate the balance after every receipt or issue. Physically verify stock at least once a month. Never include expired, heat-damaged, or VVM-discard-point vials in the available stock balance." },
+  { id: "ja-dataquality", title: "Improving Data Quality", source: "IIP Ch 8.2 / 8.3",
+    content: "Common causes of poor data quality:\n- Tally sheet doesn't match the register\n- Entries recorded late or from memory\n- Monthly physical stock count skipped\n- No second-person check before reporting upward\n\nHow to fix it:\n1. Record each dose immediately after it is given — not later from memory.\n2. Reconcile the tally sheet against the register and ledger book at the end of every day.\n3. Do a full physical stock verification at least once a month (RDQA).\n4. Have a second staff member countercheck totals before they go up to PHCU level.\n5. Investigate and correct any mismatch the same week it is found." },
   { id: "ja-vrf", title: "Vaccine Requisition Form (VRF) Basics", source: "IIP Ch 2.3.2",
     content: "The VRF is used to request vaccines/supplies from the next level of the supply chain. It should be submitted before the end of the agreed supply period to avoid stock-out from lead time.\nOrder = Maximum stock - Current balance + Lead time need.\nAlways bundle vaccines with diluent, AD syringe and safety box, and confirm cold chain storage capacity before ordering." },
 ];
@@ -312,6 +343,61 @@ const ModuleSubHeader = ({ title, onBack }) => (
     <button onClick={onBack} style={{ background: "transparent", border: "none", padding: 0, display: "flex", gap: 6, alignItems: "center", color: TILE_BLUE, fontWeight: 700 }}><ArrowLeft size={16} /> Back to {title} menu</button>
   </div>
 );
+
+// Generic add/update/manage list — used for Saved Forecasts (Vaccine Forecasting)
+// and Saved Session Plans (Session Planning), per client feedback item 7.
+const RecordManager = ({ records, onAdd, onUpdate, onDelete, placeholderTitle, placeholderNotes }) => {
+  const [editingId, setEditingId] = useState(null);
+  const [title, setTitle] = useState("");
+  const [notes, setNotes] = useState("");
+  const startNew = () => { setEditingId("new"); setTitle(""); setNotes(""); };
+  const startEdit = (r) => { setEditingId(r.id); setTitle(r.title); setNotes(r.notes); };
+  const cancel = () => { setEditingId(null); setTitle(""); setNotes(""); };
+  const save = () => {
+    if (!title.trim()) return;
+    if (editingId === "new") onAdd({ id: `rec-${Date.now()}`, title: title.trim(), notes: notes.trim(), date: new Date().toLocaleDateString() });
+    else onUpdate(editingId, { title: title.trim(), notes: notes.trim() });
+    cancel();
+  };
+  return (
+    <div style={{ display: "grid", gap: 10 }}>
+      {editingId ? (
+        <Card>
+          <div style={{ display: "grid", gap: 8 }}>
+            <Input label="Title" placeholder={placeholderTitle} value={title} onChange={e => setTitle(e.target.value)} />
+            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+              <label style={{ fontSize: 13, color: "#334155", fontWeight: 700 }}>Notes</label>
+              <textarea value={notes} onChange={e => setNotes(e.target.value)} placeholder={placeholderNotes} rows={3}
+                style={{ padding: 12, borderRadius: 10, border: "1px solid #E6EDF3", fontSize: 14, fontFamily: "inherit", resize: "vertical" }} />
+            </div>
+            <div style={{ display: "flex", gap: 8 }}>
+              <button onClick={save} style={{ flex: 1, padding: 10, borderRadius: 10, background: TILE_BLUE, color: "#fff", border: "none", fontWeight: 700 }}>{editingId === "new" ? "Add" : "Save changes"}</button>
+              <button onClick={cancel} style={{ flex: 1, padding: 10, borderRadius: 10, background: "#F1F5F9", border: "none" }}>Cancel</button>
+            </div>
+          </div>
+        </Card>
+      ) : (
+        <button onClick={startNew} style={{ padding: 12, borderRadius: 10, background: "#EAF1F8", border: `1px dashed ${TILE_BLUE}`, color: TILE_BLUE, fontWeight: 700, cursor: "pointer" }}>+ Add new</button>
+      )}
+      {records.length === 0 && !editingId && <div style={{ color: "#94a3b8", fontSize: 13, textAlign: "center", padding: 12 }}>Nothing saved yet.</div>}
+      {records.map(r => (
+        <Card key={r.id}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 8 }}>
+            <div>
+              <div style={{ fontWeight: 800 }}>{r.title}</div>
+              {r.notes && <div style={{ color: "#64748b", marginTop: 4, fontSize: 13 }}>{r.notes}</div>}
+              <div style={{ color: "#94a3b8", fontSize: 11, marginTop: 4 }}>{r.date}</div>
+            </div>
+            <div style={{ display: "flex", gap: 6, flexShrink: 0 }}>
+              <button onClick={() => startEdit(r)} style={{ padding: "6px 8px", borderRadius: 8, background: "#F1F5F9", border: "none", fontSize: 11, fontWeight: 700 }}>Edit</button>
+              <button onClick={() => onDelete(r.id)} style={{ padding: "6px 8px", borderRadius: 8, background: "#FEE2E2", color: "#ef4444", border: "none", fontSize: 11, fontWeight: 700 }}>Delete</button>
+            </div>
+          </div>
+        </Card>
+      ))}
+    </div>
+  );
+};
 
 /* ===========================
    FORECASTING CALCULATOR
@@ -1373,6 +1459,7 @@ export default function ImmunizationChatBot() {
   const [screen, setScreen] = useState("home");
   const [forecastView, setForecastView] = useState("single");
   const [stockView, setStockView] = useState(null);
+  const [ledgerReadMore, setLedgerReadMore] = useState(false);
   const [coldChainView, setColdChainView] = useState(null);
   const [sessionView, setSessionView] = useState(null);
   const [faqView, setFaqView] = useState(null);
@@ -1408,11 +1495,32 @@ export default function ImmunizationChatBot() {
   const [feedback, setFeedback] = useState({}); // messageId -> 'up' | 'down'
   const [escalations, setEscalations] = useState([]); // {id, query, status, createdAt}
   const [progress, setProgress] = useState({ completedModules: [], quizScore: 0 });
+  const [notifications] = useState([
+    { id: "n1", title: "Penta-2 due — Abebe T.", detail: "Child registered at Bole HC is due for Penta-2, PCV-2, bOPV-2, Rota-2 this week.", when: "Due in 2 days" },
+    { id: "n2", title: "Measles-1 due — 4 children", detail: "4 children in your catchment area reach 9 months this week and are due for Measles-1.", when: "Due in 5 days" },
+    { id: "n3", title: "Defaulter follow-up", detail: "2 children missed their scheduled Penta-3 dose 3 weeks ago — flagged for follow-up.", when: "Overdue" },
+    { id: "n4", title: "Fridge temperature check reminder", detail: "Evening temperature reading has not been recorded yet today.", when: "Today" },
+  ]);
+  const [notificationsOpen, setNotificationsOpen] = useState(false);
+  const [faqSearch, setFaqSearch] = useState("");
+  const [openFaqIdx, setOpenFaqIdx] = useState(null);
+  const [savedForecasts, setSavedForecasts] = useState([
+    { id: "sf1", title: "Q3 Penta & PCV forecast — Bole HC", notes: "Target population method, 25% buffer applied.", date: "07/15/2026" },
+  ]);
+  const [savedSessionPlans, setSavedSessionPlans] = useState([
+    { id: "sp1", title: "March outreach — Kebele 04", notes: "2 outreach posts, weekly sessions, catchment ~1,200.", date: "07/10/2026" },
+  ]);
   const [suggestedQueries] = useState([
     "At what temperature are vaccines stored?",
     "How do I perform the Shake Test?",
     "How much buffer stock should I keep?",
-    "What is the MDVP?"
+    "What is the MDVP?",
+    "When is Measles-1 given?",
+    "How do I fix poor data quality?",
+    "What is the dose for Penta?",
+    "How do I pack a cold box?",
+    "What is a micro-plan?",
+    "How do I record in the ledger book?",
   ]);
   const scrollRef = useRef(null);
 
@@ -1484,7 +1592,7 @@ export default function ImmunizationChatBot() {
   };
 
   const HeaderLogos = ({ small }) => (
-    <div style={{ display: "flex", gap: 10, alignItems: "center", justifyContent: "space-between", width: "100%" }}>
+    <div style={{ display: "flex", gap: 10, alignItems: "center", justifyContent: "space-between", width: "100%", marginLeft: small ? 14 : 0 }}>
       <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
         <img src={AMREF_LOGO} alt="amref" style={{ height: small ? 40 : 48, width: "auto", objectFit: "contain", flexShrink: 0 }} />
         <div>
@@ -1510,7 +1618,9 @@ export default function ImmunizationChatBot() {
     offline_content: "Offline Content",
     chat: "Chat Bot",
     chat_history: "Chat History",
-    search: "Search",
+    search: "FAQ",
+    general_info: "General Information",
+    notifications: "Notifications",
   };
 
   /* ============ ONBOARDING FLOW ============ */
@@ -1646,7 +1756,13 @@ export default function ImmunizationChatBot() {
         {/* Header */}
         {screen === "home" ? (
           <div style={{ background: `linear-gradient(135deg, ${HEADER_BLUE} 0%, #1B3F63 100%)`, padding: 18, color: "#fff", borderRadius: 24, margin: "0 10px", boxShadow: "0 10px 24px rgba(27,63,99,0.35)" }}>
-            <div style={{ display: "flex", justifyContent: "flex-end", alignItems: "flex-start" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+              <button onClick={() => setScreen("notifications")} style={{ position: "relative", background: "rgba(255,255,255,0.15)", border: "none", borderRadius: 12, width: 36, height: 36, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", flexShrink: 0 }}>
+                <Bell size={16} style={{ color: "#fff" }} />
+                {notifications.length > 0 && (
+                  <span style={{ position: "absolute", top: -3, right: -3, background: ICON_RED, color: "#fff", fontSize: 9, fontWeight: 800, borderRadius: 10, minWidth: 15, height: 15, display: "flex", alignItems: "center", justifyContent: "center", padding: "0 3px" }}>{notifications.length}</span>
+                )}
+              </button>
               <HeaderLogos small />
             </div>
             <div style={{ marginTop: 12 }}>
@@ -1740,8 +1856,78 @@ export default function ImmunizationChatBot() {
                 </div>
               </div>
 
+              <div style={{ marginBottom: 16 }}>
+                <button onClick={() => setScreen("general_info")} style={{ width: "100%", display: "flex", gap: 12, alignItems: "center", padding: 14, borderRadius: 12, background: "#EAF1F8", border: `1px solid ${TILE_BLUE}`, cursor: "pointer", textAlign: "left" }}>
+                  <div style={{ width: 40, height: 40, borderRadius: 10, background: "#fff", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}><Info size={18} style={{ color: TILE_BLUE }} /></div>
+                  <div style={{ flex: 1 }}>
+                    <div style={{ fontWeight: 800, fontSize: 13 }}>General Information</div>
+                    <div style={{ color: "#64748b", fontSize: 12 }}>Minimum requirements & key facts that apply system-wide</div>
+                  </div>
+                  <ChevronRight size={18} style={{ color: TILE_BLUE, flexShrink: 0 }} />
+                </button>
+              </div>
+
               <div style={{ marginBottom: 16, textAlign: "center", color: "#94a3b8", fontSize: 11, lineHeight: 1.5 }}>
                 Prepared by Amref Health Africa™ in Ethiopia<br />in partnership with the Federal Ministry of Health™, Ethiopia
+              </div>
+            </>
+          )}
+
+          {/* General Information */}
+          {screen === "general_info" && (
+            <>
+              <div style={{ marginBottom: 8 }}><button onClick={() => setScreen("home")} style={{ background: "transparent", border: "none", padding: 0, display: "flex", gap: 6, alignItems: "center" }}><ArrowLeft size={16} /> Back</button></div>
+              <h3>General Information</h3>
+              <p style={{ color: "#64748b", marginTop: -6, marginBottom: 12, fontSize: 13 }}>Minimum requirements and key facts that apply across the whole app, in one place.</p>
+              <div style={{ display: "grid", gap: 10 }}>
+                <Card>
+                  <div style={{ fontWeight: 800 }}>Cold chain temperature range</div>
+                  <div style={{ color: "#64748b", marginTop: 6, fontSize: 13 }}>All routine vaccines: <b>+2°C to +8°C</b>. Record fridge temperature twice daily. Never freeze freeze-sensitive vaccines.</div>
+                  <div style={{ fontSize: 11, color: "#94a3b8", marginTop: 6 }}>IIP Ch 2.6</div>
+                </Card>
+                <Card>
+                  <div style={{ fontWeight: 800 }}>Buffer / safety stock</div>
+                  <div style={{ color: "#64748b", marginTop: 6, fontSize: 13 }}>Keep a safety stock of <b>25%</b> of the supply-period need at the facility at all times.</div>
+                  <div style={{ fontSize: 11, color: "#94a3b8", marginTop: 6 }}>IIP Ch 2.3.1</div>
+                </Card>
+                <Card>
+                  <div style={{ fontWeight: 800 }}>Injection safety essentials</div>
+                  <div style={{ color: "#64748b", marginTop: 6, fontSize: 13 }}>New AD syringe per injection, never recap, sharps go straight into a safety box, close the box at ¾ full.</div>
+                  <div style={{ fontSize: 11, color: "#94a3b8", marginTop: 6 }}>IIP Ch 5</div>
+                </Card>
+                <Card>
+                  <div style={{ fontWeight: 800 }}>Data quality minimum</div>
+                  <div style={{ color: "#64748b", marginTop: 6, fontSize: 13 }}>Record every dose the same day, reconcile tally/register/ledger daily, and physically verify stock at least monthly.</div>
+                  <div style={{ fontSize: 11, color: "#94a3b8", marginTop: 6 }}>IIP Ch 8.2 / 8.3</div>
+                </Card>
+                <Card>
+                  <div style={{ fontWeight: 800 }}>Who this app is for</div>
+                  <div style={{ color: "#64748b", marginTop: 6, fontSize: 13 }}>Health Care Workers (primary), plus Content, Language, System Administrators and Analysts with role-based access. Answers are grounded only in the approved IIP Manual and cite their source chapter.</div>
+                </Card>
+                <Card>
+                  <div style={{ fontWeight: 800 }}>Need a person, not the chatbot?</div>
+                  <div style={{ color: "#64748b", marginTop: 6, fontSize: 13 }}>Any chat answer can be escalated to a human focal point in one tap — from the chatbot, tap "Escalate to human focal point".</div>
+                </Card>
+              </div>
+            </>
+          )}
+
+          {/* Notifications (dose-due reminders — demo/mock data for this prototype) */}
+          {screen === "notifications" && (
+            <>
+              <div style={{ marginBottom: 8 }}><button onClick={() => setScreen("home")} style={{ background: "transparent", border: "none", padding: 0, display: "flex", gap: 6, alignItems: "center" }}><ArrowLeft size={16} /> Back</button></div>
+              <h3>Notifications</h3>
+              <p style={{ color: "#64748b", marginTop: -6, marginBottom: 12, fontSize: 13 }}>Reminders about vaccine doses due, defaulters, and daily tasks for your facility. (Sample data for this prototype.)</p>
+              <div style={{ display: "grid", gap: 10 }}>
+                {notifications.map(n => (
+                  <Card key={n.id}>
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 8 }}>
+                      <div style={{ fontWeight: 800, fontSize: 13 }}>{n.title}</div>
+                      <div style={{ fontSize: 10.5, fontWeight: 700, color: n.when === "Overdue" ? "#ef4444" : TILE_BLUE, flexShrink: 0 }}>{n.when}</div>
+                    </div>
+                    <div style={{ color: "#64748b", marginTop: 6, fontSize: 12.5 }}>{n.detail}</div>
+                  </Card>
+                ))}
               </div>
             </>
           )}
@@ -1755,11 +1941,23 @@ export default function ImmunizationChatBot() {
               <div style={{ display: "flex", gap: 8, marginBottom: 12 }}>
                 <button onClick={() => setForecastView("single")} style={{ flex: 1, padding: 10, borderRadius: 10, background: forecastView === "single" ? TILE_BLUE : "#F1F5F9", color: forecastView === "single" ? "#fff" : "#334155", fontWeight: 700, fontSize: 12, border: "none" }}>Single vaccine</button>
                 <button onClick={() => setForecastView("table")} style={{ flex: 1, padding: 10, borderRadius: 10, background: forecastView === "table" ? TILE_BLUE : "#F1F5F9", color: forecastView === "table" ? "#fff" : "#334155", fontWeight: 700, fontSize: 12, border: "none" }}>All vaccines (facility table)</button>
+                <button onClick={() => setForecastView("manage")} style={{ flex: 1, padding: 10, borderRadius: 10, background: forecastView === "manage" ? TILE_BLUE : "#F1F5F9", color: forecastView === "manage" ? "#fff" : "#334155", fontWeight: 700, fontSize: 12, border: "none" }}>Saved forecasts</button>
               </div>
-              {forecastView === "single" ? (
+              {forecastView === "single" && (
                 <ForecastingCalculator onComplete={markCompleted} completed={progress.completedModules.includes("forecast_module")} />
-              ) : (
+              )}
+              {forecastView === "table" && (
                 <MultiVaccineForecastTable onComplete={markCompleted} />
+              )}
+              {forecastView === "manage" && (
+                <RecordManager
+                  records={savedForecasts}
+                  onAdd={(r) => setSavedForecasts(list => [r, ...list])}
+                  onUpdate={(id, patch) => setSavedForecasts(list => list.map(r => r.id === id ? { ...r, ...patch } : r))}
+                  onDelete={(id) => setSavedForecasts(list => list.filter(r => r.id !== id))}
+                  placeholderTitle="e.g. Q4 BCG & Measles forecast — Bole HC"
+                  placeholderNotes="Method used, coverage assumptions, buffer notes…"
+                />
               )}
             </>
           )}
@@ -1781,6 +1979,7 @@ export default function ImmunizationChatBot() {
                     { id: "ledger", label: "Ledger (Bin) Book Recording", desc: "How to record receipts, issues & stock checks", icon: BookOpen },
                     { id: "wastage", label: "Vaccine Wastage", desc: "Calculate and understand wastage", icon: AlertTriangle },
                     { id: "mdvp", label: "Multi-Dose Vial Policy (MDVP)", desc: "Whether an opened vial can be reused", icon: ShieldCheck },
+                    { id: "dataquality", label: "Data Quality", desc: "Fix mismatched records & improve accuracy", icon: FileQuestion },
                   ]}
                 />
               )}
@@ -1810,6 +2009,7 @@ export default function ImmunizationChatBot() {
                     <div style={{ fontWeight: 800 }}>Receiving vaccines & supplies</div>
                     <div style={{ color: "#64748b", marginTop: 6, fontSize: 13 }}>On receipt: check quantity against the order, expiry date & VVM stage, fridge tag/temperature during transport, and bundling — then store immediately and update Model 19 / the EPI ledger book.</div>
                     <div style={{ fontSize: 11, color: "#94a3b8", marginTop: 6 }}>IIP Ch 2.3.3</div>
+                    <button onClick={() => setStockView("ledger")} style={{ marginTop: 8, background: "transparent", border: "none", padding: 0, color: TILE_BLUE, fontWeight: 700, fontSize: 12, cursor: "pointer" }}>How do I update the ledger book? Read more →</button>
                   </Card>
                 </>
               )}
@@ -1821,6 +2021,16 @@ export default function ImmunizationChatBot() {
                     <div style={{ fontWeight: 800 }}>Ledger (bin) book recording</div>
                     <div style={{ color: "#64748b", marginTop: 6, fontSize: 13 }}>Record every receipt/issue: purpose, batch number, expiry date, VVM status, quantity, presentation, manufacturer, min/max stock, discarded and returned amounts. Physically verify stock at least monthly — never include expired/heat-damaged/discard-point VVM vials in the available balance.</div>
                     <div style={{ fontSize: 11, color: "#94a3b8", marginTop: 6 }}>IIP Ch 2.3.4</div>
+                    <button onClick={() => setLedgerReadMore(v => !v)} style={{ marginTop: 8, background: "transparent", border: "none", padding: 0, color: TILE_BLUE, fontWeight: 700, fontSize: 12, cursor: "pointer" }}>{ledgerReadMore ? "Show less ▲" : "Read more — full ledger book guide →"}</button>
+                    {ledgerReadMore && (
+                      <div style={{ marginTop: 10, padding: 10, borderRadius: 10, background: "#F8FAFC", fontSize: 12.5, color: "#334155", whiteSpace: "pre-line", lineHeight: 1.6 }}>
+                        {JOB_AIDS.find(j => j.id === "ja-ledger")?.content}
+                        <div style={{ marginTop: 10, paddingTop: 10, borderTop: "1px solid #E6EDF3" }}>
+                          <div style={{ fontWeight: 800, marginBottom: 4 }}>Related: Improving data quality</div>
+                          <div>{JOB_AIDS.find(j => j.id === "ja-dataquality")?.content}</div>
+                        </div>
+                      </div>
+                    )}
                     <div style={{ marginTop: 10 }}><button onClick={() => markCompleted("stock_module")} style={{ padding: 10, borderRadius: 10, background: TILE_BLUE, color: "#fff", border: "none" }}>Mark as complete</button></div>
                   </Card>
                 </>
@@ -1841,6 +2051,17 @@ export default function ImmunizationChatBot() {
                   <MDVPChecker onChangeComplete={() => {}} />
                 </>
               )}
+
+              {stockView === "dataquality" && (
+                <>
+                  <ModuleSubHeader title="Stock Management" onBack={() => setStockView(null)} />
+                  <Card>
+                    <div style={{ fontWeight: 800 }}>Improving data quality</div>
+                    <div style={{ color: "#64748b", marginTop: 6, fontSize: 13, whiteSpace: "pre-line", lineHeight: 1.6 }}>{JOB_AIDS.find(j => j.id === "ja-dataquality")?.content}</div>
+                    <div style={{ fontSize: 11, color: "#94a3b8", marginTop: 6 }}>IIP Ch 8.2 / 8.3</div>
+                  </Card>
+                </>
+              )}
             </>
           )}
 
@@ -1856,6 +2077,7 @@ export default function ImmunizationChatBot() {
                   onSelect={setColdChainView}
                   items={[
                     { id: "temperature", label: "Storage Temperature", desc: "Correct storage range & freeze-sensitive vaccines", icon: Thermometer },
+                    { id: "vaccineref", label: "Vaccine Storage & Dosage", desc: "Per-vaccine temperature, dose, route & schedule", icon: Syringe },
                     { id: "equipment", label: "Cold Chain Equipment", desc: "Fridges, cold boxes, vaccine carriers", icon: Package },
                     { id: "monitoring", label: "Temperature Monitoring Devices", desc: "Fridge tags, RTMD, thermometers, VVM", icon: Gauge },
                     { id: "excursion", label: "Temperature Excursion Helper", desc: "Decision tool for a fridge out of range", icon: AlertTriangle },
@@ -1874,6 +2096,27 @@ export default function ImmunizationChatBot() {
                     <div style={{ fontWeight: 800 }}>Storage temperature</div>
                     <div style={{ color: "#64748b", marginTop: 6, fontSize: 14 }}>Routine vaccines: <b>+2°C to +8°C</b>. Never freeze freeze-sensitive vaccines (IPV, Penta, PCV-13, HepB, Td). Record fridge temperature twice daily. (IIP Ch 2.6.1/2.6.3)</div>
                   </Card>
+                </>
+              )}
+
+              {coldChainView === "vaccineref" && (
+                <>
+                  <ModuleSubHeader title="Cold Chain" onBack={() => setColdChainView(null)} />
+                  <div style={{ color: "#64748b", fontSize: 12, marginBottom: 10 }}>Storage temperature, freeze/heat sensitivity, dose, route and schedule age for each routine vaccine.</div>
+                  <div style={{ display: "grid", gap: 10 }}>
+                    {VACCINE_REFERENCE.map((v, i) => (
+                      <Card key={i}>
+                        <div style={{ fontWeight: 800, marginBottom: 6 }}>{v.name}</div>
+                        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 6, fontSize: 12 }}>
+                          <div><div style={{ color: "#94a3b8" }}>Storage</div><div style={{ fontWeight: 700 }}>{v.storage}</div></div>
+                          <div><div style={{ color: "#94a3b8" }}>Dose</div><div style={{ fontWeight: 700 }}>{v.dose}</div></div>
+                          <div><div style={{ color: "#94a3b8" }}>Route</div><div style={{ fontWeight: 700 }}>{v.route}</div></div>
+                          <div><div style={{ color: "#94a3b8" }}>Schedule</div><div style={{ fontWeight: 700 }}>{v.schedule}</div></div>
+                        </div>
+                        <div style={{ marginTop: 8, color: "#64748b", fontSize: 12 }}>{v.sensitivity}</div>
+                      </Card>
+                    ))}
+                  </div>
                 </>
               )}
 
@@ -1982,6 +2225,7 @@ export default function ImmunizationChatBot() {
                     { id: "sessioncalculation", label: "Session Calculation", desc: "Calculate vaccine need from session size", icon: Gauge },
                     { id: "preparation", label: "Preparing Site & Supplies", desc: "What to bring and set up before a session", icon: ClipboardList },
                     { id: "defaulter", label: "Defaulter Tracking", desc: "Follow up missed doses, + scenario", icon: Users },
+                    { id: "manage", label: "Saved Session Plans", desc: "Add, edit & manage your own session plans", icon: BookOpen },
                   ]}
                 />
               )}
@@ -2042,6 +2286,20 @@ export default function ImmunizationChatBot() {
                     <h4>Defaulter tracking scenario</h4>
                     <ScenarioPlayer scenario={SCENARIOS[2]} onComplete={markCompleted} />
                   </div>
+                </>
+              )}
+
+              {sessionView === "manage" && (
+                <>
+                  <ModuleSubHeader title="Session Planning" onBack={() => setSessionView(null)} />
+                  <RecordManager
+                    records={savedSessionPlans}
+                    onAdd={(r) => setSavedSessionPlans(list => [r, ...list])}
+                    onUpdate={(id, patch) => setSavedSessionPlans(list => list.map(r => r.id === id ? { ...r, ...patch } : r))}
+                    onDelete={(id) => setSavedSessionPlans(list => list.filter(r => r.id !== id))}
+                    placeholderTitle="e.g. April session plan — Kebele 02"
+                    placeholderNotes="Communities covered, dates, outreach posts…"
+                  />
                 </>
               )}
             </>
@@ -2395,16 +2653,41 @@ export default function ImmunizationChatBot() {
             </div>
           )}
 
-          {screen === "search" && (
-            <div style={{ display: "grid", gap: 10 }}>
-              <h3 style={{ margin: 0 }}>Search</h3>
-              <div style={{ display: "flex", gap: 8 }}>
-                <input value={input} onChange={e => setInput(e.target.value)} onKeyDown={e => e.key === "Enter" && doSearch()} placeholder="Search topics or ask a question…" style={{ flex: 1, padding: 12, borderRadius: 12, border: "1px solid #E6EDF3" }} />
-                <button onClick={() => doSearch()} style={{ width: 48, borderRadius: 12, background: TILE_BLUE, color: "#fff", border: "none" }}><Search size={16} /></button>
+          {screen === "search" && (() => {
+            const q = faqSearch.trim().toLowerCase();
+            const filtered = !q ? FAQS : FAQS.filter(f => f.q.toLowerCase().includes(q) || f.a.toLowerCase().includes(q) || (f.source || "").toLowerCase().includes(q));
+            return (
+              <div style={{ display: "grid", gap: 10 }}>
+                <h3 style={{ margin: 0 }}>FAQ</h3>
+                <p style={{ color: "#64748b", marginTop: -6, marginBottom: 4, fontSize: 13 }}>Quick short answers from the IIP Manual. Tap a question to expand it, then ask more in the chatbot if you need the full picture.</p>
+                <input value={faqSearch} onChange={e => setFaqSearch(e.target.value)} placeholder="Filter FAQs… e.g. shake test, buffer stock" style={{ padding: 12, borderRadius: 12, border: "1px solid #E6EDF3" }} />
+                <div style={{ display: "grid", gap: 8 }}>
+                  {filtered.map((f, i) => {
+                    const key = q ? `${q}-${i}` : i;
+                    const open = openFaqIdx === key;
+                    return (
+                      <Card key={key} style={{ padding: 0, overflow: "hidden" }}>
+                        <button onClick={() => setOpenFaqIdx(open ? null : key)} style={{ width: "100%", textAlign: "left", padding: 14, background: "transparent", border: "none", display: "flex", justifyContent: "space-between", alignItems: "center", gap: 8, cursor: "pointer" }}>
+                          <div style={{ fontWeight: 700, fontSize: 13.5 }}>{f.q}</div>
+                          <ChevronRight size={16} style={{ color: "#94a3b8", flexShrink: 0, transform: open ? "rotate(90deg)" : "none", transition: "transform 0.15s" }} />
+                        </button>
+                        {open && (
+                          <div style={{ padding: "0 14px 14px" }}>
+                            <div style={{ color: "#334155", fontSize: 13, lineHeight: 1.5 }}>{f.a}</div>
+                            <div style={{ color: "#94a3b8", fontSize: 11, marginTop: 6 }}>{f.source}</div>
+                            <button onClick={() => { setScreen("chat"); setTimeout(() => send(f.q), 150); }} style={{ marginTop: 10, padding: "8px 12px", borderRadius: 10, background: TILE_BLUE, color: "#fff", border: "none", fontSize: 12, fontWeight: 700, display: "flex", alignItems: "center", gap: 6 }}>
+                              <MessageCircle size={13} /> Learn more — ask the chatbot →
+                            </button>
+                          </div>
+                        )}
+                      </Card>
+                    );
+                  })}
+                  {filtered.length === 0 && <div style={{ color: "#94a3b8", fontSize: 13, textAlign: "center", padding: 20 }}>No FAQs match "{faqSearch}". Try a different word, or ask the chatbot directly.</div>}
+                </div>
               </div>
-              <div style={{ color: "#64748b", fontSize: 13 }}>Topic keywords like "cold chain", "stock management", or "forecasting" open the matching menu directly. Anything else goes to the chatbot. Try: "shake test", "buffer stock", "MDVP", "temperature"</div>
-            </div>
-          )}
+            );
+          })()}
 
           {/* Chat history — one entry per conversation, so topics don't overlay each other */}
           {screen === "chat_history" && (
@@ -2456,7 +2739,7 @@ export default function ImmunizationChatBot() {
                     <Home size={18} /> <div style={{ fontSize: 11 }}>Home</div>
                   </button>
                   <button onClick={() => setScreen("search")} style={{ background: screen === "search" ? "rgba(255,255,255,0.12)" : "transparent", padding: 10, borderRadius: 14, color: "#fff", display: "flex", flexDirection: "column", alignItems: "center", gap: 4, border: "none" }}>
-                    <Search size={18} /> <div style={{ fontSize: 11 }}>Search</div>
+                    <FileQuestion size={18} /> <div style={{ fontSize: 11 }}>FAQ</div>
                   </button>
                 </div>
 
