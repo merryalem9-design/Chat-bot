@@ -6,7 +6,8 @@ import {
   MessageCircle, GraduationCap, User, Sparkles, Globe2,
   Download, CheckCircle, Star, LogOut, Box, FileQuestion, Phone, ShieldCheck,
   Wifi, WifiOff, PlayCircle,
-  BookOpen, Truck, Gauge, FlaskConical, Wrench, ShieldAlert, MapPin, Users, Info
+  BookOpen, Truck, Gauge, FlaskConical, Wrench, ShieldAlert, MapPin, Users, Info,
+  Sun, Moon
 } from "lucide-react";
 
 /*
@@ -306,16 +307,44 @@ function findBestAnswer(query) {
    Small UI primitives
    =========================== */
 const Card = ({ children, style = {}, ...p }) => (
-  <div {...p} style={{ background: "#fff", borderRadius: 12, border: "1px solid #E6EDF3", padding: 12, ...style }}>{children}</div>
+  <div {...p} style={{ background: "var(--surface)", color: "var(--text)", borderRadius: 12, border: "1px solid var(--border)", padding: 12, ...style }}>{children}</div>
 );
 
 const Input = ({ label, placeholder, value, onChange, type = "text" }) => (
   <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-    <label style={{ fontSize: 13, color: "#334155", fontWeight: 700 }}>{label}</label>
+    <label style={{ fontSize: 13, color: "var(--text)", fontWeight: 700 }}>{label}</label>
     <input type={type} value={value} onChange={onChange} placeholder={placeholder}
-      style={{ padding: 12, borderRadius: 10, border: "1px solid #E6EDF3", background: "#fff", fontSize: 15, width: "100%", boxSizing: "border-box" }} />
+      style={{ padding: 12, borderRadius: 10, border: "1px solid var(--border)", background: "var(--surface)", color: "var(--text)", fontSize: 15, width: "100%", boxSizing: "border-box" }} />
   </div>
 );
+
+// Theme tokens — light values exactly match the app's original hardcoded
+// colors, so selecting "light" leaves everything visually unchanged.
+// Dark swaps backgrounds/text/borders only; brand colors (TILE_BLUE, ICON_RED,
+// status greens/reds/yellows, button text on colored buttons) are untouched
+// so they stay legible and consistent in both themes.
+const THEME_VARS = {
+  light: {
+    "--bg": "#fff",
+    "--surface": "#fff",
+    "--surface-alt": "#F1F5F9",
+    "--surface-alt2": "#F8FAFC",
+    "--text": "#0f172a",
+    "--text-muted": "#64748b",
+    "--text-subtle": "#94a3b8",
+    "--border": "#E6EDF3",
+  },
+  dark: {
+    "--bg": "#0B1220",
+    "--surface": "#141E30",
+    "--surface-alt": "#1C2A42",
+    "--surface-alt2": "#111A2B",
+    "--text": "#F1F5F9",
+    "--text-muted": "#AEBBCC",
+    "--text-subtle": "#8493A8",
+    "--border": "#2A3B54",
+  },
+};
 
 const SectionTag = ({ children }) => (
   <div style={{ display: "inline-block", padding: "8px 12px", borderRadius: 20, background: ICON_RED, color: "#fff", fontWeight: 700, marginBottom: 12 }}>{children}</div>
@@ -324,14 +353,14 @@ const SectionTag = ({ children }) => (
 // Shown right after every calculation result so the user can see exactly
 // which formula/rule produced it and where it comes from in the IIP manual.
 const FormulaNote = ({ source, lines }) => (
-  <div style={{ marginTop: 10, padding: 10, borderRadius: 10, background: "#F8FAFC", border: "1px dashed #CBD5E1" }}>
-    <div style={{ fontWeight: 800, fontSize: 12, color: "#334155", marginBottom: 4 }}>Formula / rule used</div>
+  <div style={{ marginTop: 10, padding: 10, borderRadius: 10, background: "var(--surface-alt2)", border: "1px dashed #CBD5E1" }}>
+    <div style={{ fontWeight: 800, fontSize: 12, color: "var(--text)", marginBottom: 4 }}>Formula / rule used</div>
     <div style={{ display: "grid", gap: 3 }}>
       {(Array.isArray(lines) ? lines : [lines]).map((l, i) => (
-        <div key={i} style={{ fontSize: 12, color: "#475569", fontFamily: "ui-monospace, SFMono-Regular, Menlo, monospace" }}>{l}</div>
+        <div key={i} style={{ fontSize: 12, color: "var(--text)", fontFamily: "ui-monospace, SFMono-Regular, Menlo, monospace" }}>{l}</div>
       ))}
     </div>
-    <div style={{ fontSize: 11, color: "#94a3b8", marginTop: 6 }}>Source: {source}</div>
+    <div style={{ fontSize: 11, color: "var(--text-subtle)", marginTop: 6 }}>Source: {source}</div>
   </div>
 );
 
@@ -340,15 +369,15 @@ const FormulaNote = ({ source, lines }) => (
 const ModuleSubMenu = ({ items, onSelect }) => (
   <div style={{ display: "grid", gap: 10 }}>
     {items.map((it) => (
-      <button key={it.id} onClick={() => onSelect(it.id)} style={{ display: "flex", gap: 12, alignItems: "center", padding: 14, borderRadius: 12, background: "#fff", border: "1px solid #E6EDF3", textAlign: "left", cursor: "pointer" }}>
+      <button key={it.id} onClick={() => onSelect(it.id)} style={{ display: "flex", gap: 12, alignItems: "center", padding: 14, borderRadius: 12, background: "var(--surface)", color: "var(--text)", border: "1px solid var(--border)", textAlign: "left", cursor: "pointer" }}>
         <div style={{ width: 40, height: 40, borderRadius: 10, background: TILE_BLUE, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
           <it.icon size={18} color="#fff" />
         </div>
         <div style={{ flex: 1 }}>
           <div style={{ fontWeight: 800, fontSize: 14 }}>{it.label}</div>
-          <div style={{ color: "#64748b", fontSize: 12, marginTop: 2 }}>{it.desc}</div>
+          <div style={{ color: "var(--text-muted)", fontSize: 12, marginTop: 2 }}>{it.desc}</div>
         </div>
-        <ChevronRight size={18} style={{ color: "#94a3b8", flexShrink: 0 }} />
+        <ChevronRight size={18} style={{ color: "var(--text-subtle)", flexShrink: 0 }} />
       </button>
     ))}
   </div>
@@ -382,30 +411,30 @@ const RecordManager = ({ records, onAdd, onUpdate, onDelete, placeholderTitle, p
           <div style={{ display: "grid", gap: 8 }}>
             <Input label="Title" placeholder={placeholderTitle} value={title} onChange={e => setTitle(e.target.value)} />
             <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-              <label style={{ fontSize: 13, color: "#334155", fontWeight: 700 }}>Notes</label>
+              <label style={{ fontSize: 13, color: "var(--text)", fontWeight: 700 }}>Notes</label>
               <textarea value={notes} onChange={e => setNotes(e.target.value)} placeholder={placeholderNotes} rows={3}
-                style={{ padding: 12, borderRadius: 10, border: "1px solid #E6EDF3", fontSize: 14, fontFamily: "inherit", resize: "vertical" }} />
+                style={{ padding: 12, borderRadius: 10, border: "1px solid var(--border)", fontSize: 14, fontFamily: "inherit", resize: "vertical" }} />
             </div>
             <div style={{ display: "flex", gap: 8 }}>
               <button onClick={save} style={{ flex: 1, padding: 10, borderRadius: 10, background: TILE_BLUE, color: "#fff", border: "none", fontWeight: 700 }}>{editingId === "new" ? "Add" : "Save changes"}</button>
-              <button onClick={cancel} style={{ flex: 1, padding: 10, borderRadius: 10, background: "#F1F5F9", border: "none" }}>Cancel</button>
+              <button onClick={cancel} style={{ flex: 1, padding: 10, borderRadius: 10, background: "var(--surface-alt)", border: "none" }}>Cancel</button>
             </div>
           </div>
         </Card>
       ) : (
         <button onClick={startNew} style={{ padding: 12, borderRadius: 10, background: "#EAF1F8", border: `1px dashed ${TILE_BLUE}`, color: TILE_BLUE, fontWeight: 700, cursor: "pointer" }}>+ Add new</button>
       )}
-      {records.length === 0 && !editingId && <div style={{ color: "#94a3b8", fontSize: 13, textAlign: "center", padding: 12 }}>Nothing saved yet.</div>}
+      {records.length === 0 && !editingId && <div style={{ color: "var(--text-subtle)", fontSize: 13, textAlign: "center", padding: 12 }}>Nothing saved yet.</div>}
       {records.map(r => (
         <Card key={r.id}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 8 }}>
             <div>
               <div style={{ fontWeight: 800 }}>{r.title}</div>
-              {r.notes && <div style={{ color: "#64748b", marginTop: 4, fontSize: 13 }}>{r.notes}</div>}
-              <div style={{ color: "#94a3b8", fontSize: 11, marginTop: 4 }}>{r.date}</div>
+              {r.notes && <div style={{ color: "var(--text-muted)", marginTop: 4, fontSize: 13 }}>{r.notes}</div>}
+              <div style={{ color: "var(--text-subtle)", fontSize: 11, marginTop: 4 }}>{r.date}</div>
             </div>
             <div style={{ display: "flex", gap: 6, flexShrink: 0 }}>
-              <button onClick={() => startEdit(r)} style={{ padding: "6px 8px", borderRadius: 8, background: "#F1F5F9", border: "none", fontSize: 11, fontWeight: 700 }}>Edit</button>
+              <button onClick={() => startEdit(r)} style={{ padding: "6px 8px", borderRadius: 8, background: "var(--surface-alt)", border: "none", fontSize: 11, fontWeight: 700 }}>Edit</button>
               <button onClick={() => onDelete(r.id)} style={{ padding: "6px 8px", borderRadius: 8, background: "#FEE2E2", color: "#ef4444", border: "none", fontSize: 11, fontWeight: 700 }}>Delete</button>
             </div>
           </div>
@@ -501,9 +530,9 @@ function ForecastingCalculator({ onComplete, completed }) {
     <div style={{ display: "grid", gap: 12 }}>
       {completed && <div style={{ color: "#10b981", fontWeight: 700 }}><CheckCircle size={14} style={{ marginRight: 4 }} />Module completed</div>}
       <div style={{ display: "flex", gap: 8 }}>
-        <button onClick={() => { setMethod("target_population"); setResult(null); }} style={{ flex: 1, padding: 10, borderRadius: 10, background: method === "target_population" ? "#F1F5F9" : "#fff", border: "1px solid #E6EDF3", fontWeight: 700, fontSize: 12 }}>Target population</button>
-        <button onClick={() => { setMethod("consumption"); setResult(null); }} style={{ flex: 1, padding: 10, borderRadius: 10, background: method === "consumption" ? "#F1F5F9" : "#fff", border: "1px solid #E6EDF3", fontWeight: 700, fontSize: 12 }}>Consumption</button>
-        <button onClick={() => { setMethod("immunization_session"); setResult(null); }} style={{ flex: 1, padding: 10, borderRadius: 10, background: method === "immunization_session" ? "#F1F5F9" : "#fff", border: "1px solid #E6EDF3", fontWeight: 700, fontSize: 12 }}>Session</button>
+        <button onClick={() => { setMethod("target_population"); setResult(null); }} style={{ flex: 1, padding: 10, borderRadius: 10, background: method === "target_population" ? "var(--surface-alt)" : "#fff", border: "1px solid var(--border)", fontWeight: 700, fontSize: 12 }}>Target population</button>
+        <button onClick={() => { setMethod("consumption"); setResult(null); }} style={{ flex: 1, padding: 10, borderRadius: 10, background: method === "consumption" ? "var(--surface-alt)" : "#fff", border: "1px solid var(--border)", fontWeight: 700, fontSize: 12 }}>Consumption</button>
+        <button onClick={() => { setMethod("immunization_session"); setResult(null); }} style={{ flex: 1, padding: 10, borderRadius: 10, background: method === "immunization_session" ? "var(--surface-alt)" : "#fff", border: "1px solid var(--border)", fontWeight: 700, fontSize: 12 }}>Session</button>
       </div>
 
       {method === "target_population" && (
@@ -535,9 +564,9 @@ function ForecastingCalculator({ onComplete, completed }) {
       <Input label="Wastage rate (%)" value={inputs.wastageRatePct} onChange={e => change("wastageRatePct", e.target.value)} placeholder="e.g. 5" />
       <Input label="Doses per vial / ampoule" value={inputs.dosesPerVial} onChange={e => change("dosesPerVial", e.target.value)} placeholder="e.g. 20 (BCG), 10 (Measles), 1 (Penta)" />
 
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: 10, borderRadius: 10, border: "1px solid #E6EDF3" }}>
-        <div style={{ fontSize: 13, fontWeight: 700, color: "#334155" }}>Reconstituted vaccine? (BCG / Measles — needs mixing syringe)</div>
-        <button onClick={() => setReconstituted(r => !r)} style={{ padding: 8, borderRadius: 8, background: reconstituted ? TILE_BLUE : "#F1F5F9", color: reconstituted ? "#fff" : "#475569", fontWeight: 700, fontSize: 12 }}>{reconstituted ? "Yes" : "No"}</button>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: 10, borderRadius: 10, border: "1px solid var(--border)" }}>
+        <div style={{ fontSize: 13, fontWeight: 700, color: "var(--text)" }}>Reconstituted vaccine? (BCG / Measles — needs mixing syringe)</div>
+        <button onClick={() => setReconstituted(r => !r)} style={{ padding: 8, borderRadius: 8, background: reconstituted ? TILE_BLUE : "var(--surface-alt)", color: reconstituted ? "#fff" : "var(--text)", fontWeight: 700, fontSize: 12 }}>{reconstituted ? "Yes" : "No"}</button>
       </div>
 
       {error && <div style={{ color: "#ef4444", fontWeight: 700 }}>{error}</div>}
@@ -548,7 +577,7 @@ function ForecastingCalculator({ onComplete, completed }) {
         <>
           <Card>
             <div style={{ fontWeight: 800 }}>Forecasting results</div>
-            <div style={{ fontSize: 12, color: "#64748b", marginBottom: 6 }}>IIP Ch 2.2.1 formulas</div>
+            <div style={{ fontSize: 12, color: "var(--text-muted)", marginBottom: 6 }}>IIP Ch 2.2.1 formulas</div>
             <div style={{ display: "grid", gap: 4, fontSize: 14 }}>
               <div>Wastage rate: {result.wastageRatePct}% → Wastage Factor {result.wastageFactor}</div>
               <div style={{ fontWeight: 700, marginTop: 6 }}>Vaccine need</div>
@@ -561,7 +590,7 @@ function ForecastingCalculator({ onComplete, completed }) {
               <div>Annual: {result.mixingSyringeAnnual} &nbsp;|&nbsp; Monthly: {result.mixingSyringeMonthly}</div>
               <div style={{ fontWeight: 700, marginTop: 6 }}>Safety box</div>
               <div>Annual: {result.safetyBoxAnnual} &nbsp;|&nbsp; Monthly: {result.safetyBoxMonthly}</div>
-              <div style={{ marginTop: 8, padding: 8, borderRadius: 8, background: "#F1F5F9", fontSize: 13 }}>
+              <div style={{ marginTop: 8, padding: 8, borderRadius: 8, background: "var(--surface-alt)", fontSize: 13 }}>
                 Reminder: a separate 25% buffer stock ({result.bufferStockAnnual} doses/yr) should also be available at the facility per IIP Ch 2.3.1 — this is not multiplied into the forecast above.
               </div>
             </div>
@@ -581,8 +610,8 @@ function ForecastingCalculator({ onComplete, completed }) {
             ].filter(Boolean)}
           />
           <div style={{ display: "flex", gap: 8 }}>
-            <button onClick={() => setResult(null)} style={{ flex: 1, padding: 10, borderRadius: 10, background: "#F1F5F9" }}>New calculation</button>
-            <button onClick={reset} style={{ flex: 1, padding: 10, borderRadius: 10, background: "#fff", border: "1px solid #E6EDF3" }}>Reset</button>
+            <button onClick={() => setResult(null)} style={{ flex: 1, padding: 10, borderRadius: 10, background: "var(--surface-alt)" }}>New calculation</button>
+            <button onClick={reset} style={{ flex: 1, padding: 10, borderRadius: 10, background: "var(--surface)", border: "1px solid var(--border)" }}>Reset</button>
           </div>
         </>
       )}
@@ -690,7 +719,7 @@ function EligibilityCalculator({ onComplete, completed }) {
   const STATUS_STYLE = {
     eligible:  { bg: "#DCFCE7", fg: "#166534", label: "Eligible today" },
     postponed: { bg: "#FEE2E2", fg: "#991B1B", label: "Postponed" },
-    given:     { bg: "#E2E8F0", fg: "#334155", label: "Already given" },
+    given:     { bg: "#E2E8F0", fg: "var(--text)", label: "Already given" },
     too_young: { bg: "#FEF9C3", fg: "#854D0E", label: "Not yet due" },
     waiting:   { bg: "#FEF3C7", fg: "#92400E", label: "Waiting" },
   };
@@ -698,7 +727,7 @@ function EligibilityCalculator({ onComplete, completed }) {
   return (
     <Card style={{ marginBottom: 12 }}>
       <div style={{ fontWeight: 800, marginBottom: 8 }}>Child Dose Eligibility Calculator</div>
-      <div style={{ color: "#64748b", fontSize: 12, marginBottom: 10 }}>
+      <div style={{ color: "var(--text-muted)", fontSize: 12, marginBottom: 10 }}>
         Enter the child's date of birth and today's visit date, log any doses already given, and flag illness/fever to check today's eligibility per dose. (IIP Ch 1.2.1, Ch 4/6)
       </div>
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
@@ -728,7 +757,7 @@ function EligibilityCalculator({ onComplete, completed }) {
             {doseLog[item.key] && doseLog[item.key].given && (
               <input type="date" value={doseLog[item.key].dateGiven || ""}
                 onChange={e => setDose(item.key, "dateGiven", e.target.value)}
-                style={{ padding: 8, borderRadius: 8, border: "1px solid #E6EDF3" }} />
+                style={{ padding: 8, borderRadius: 8, border: "1px solid var(--border)", background: "var(--surface)", color: "var(--text)" }} />
             )}
           </div>
         ))}
@@ -744,7 +773,7 @@ function EligibilityCalculator({ onComplete, completed }) {
 
       {results && (
         <div style={{ marginTop: 14 }}>
-          <div style={{ fontSize: 12, color: "#64748b", marginBottom: 8 }}>Child's age as of visit date: {formatAge(results.ageDays)}</div>
+          <div style={{ fontSize: 12, color: "var(--text-muted)", marginBottom: 8 }}>Child's age as of visit date: {formatAge(results.ageDays)}</div>
           <div style={{ display: "grid", gap: 8 }}>
             {results.rows.map(r => {
               const st = STATUS_STYLE[r.status];
@@ -840,7 +869,7 @@ function MultiVaccineForecastTable({ onComplete }) {
 
   return (
     <div style={{ display: "grid", gap: 10 }}>
-      <div style={{ fontSize: 12, color: "#64748b" }}>Replicates IIP Table 2.2/2.3 (Example 2.1) — computes all antigens from one catchment population.</div>
+      <div style={{ fontSize: 12, color: "var(--text-muted)" }}>Replicates IIP Table 2.2/2.3 (Example 2.1) — computes all antigens from one catchment population.</div>
       <Input label="Catchment population" value={population} onChange={e => setPopulation(e.target.value)} placeholder="e.g. 25000" />
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
         <Input label="% Live Birth" value={lbPct} onChange={e => setLbPct(e.target.value)} placeholder="e.g. 3.7" />
@@ -853,11 +882,11 @@ function MultiVaccineForecastTable({ onComplete }) {
 
       {rows && (
         <div style={{ display: "grid", gap: 8 }}>
-          <div style={{ fontSize: 12, color: "#64748b" }}>Live Birth: {rows.lb} · Surviving Infant: {rows.si} · Pfizer target: {rows.pf} · HPV target: {rows.hp}</div>
+          <div style={{ fontSize: 12, color: "var(--text-muted)" }}>Live Birth: {rows.lb} · Surviving Infant: {rows.si} · Pfizer target: {rows.pf} · HPV target: {rows.hp}</div>
           <div style={{ overflowX: "auto" }}>
             <table style={{ borderCollapse: "collapse", width: "100%", fontSize: 12 }}>
               <thead>
-                <tr style={{ background: "#F1F5F9" }}>
+                <tr style={{ background: "var(--surface-alt)" }}>
                   <th style={{ textAlign: "left", padding: 6 }}>Vaccine</th>
                   <th style={{ padding: 6 }}>Target</th>
                   <th style={{ padding: 6 }}>Annual</th>
@@ -868,7 +897,7 @@ function MultiVaccineForecastTable({ onComplete }) {
               </thead>
               <tbody>
                 {rows.computed.map(r => (
-                  <tr key={r.name} style={{ borderTop: "1px solid #E6EDF3" }}>
+                  <tr key={r.name} style={{ borderTop: "1px solid var(--border)" }}>
                     <td style={{ padding: 6, fontWeight: 700 }}>{r.name}</td>
                     <td style={{ padding: 6, textAlign: "center" }}>{r.target}</td>
                     <td style={{ padding: 6, textAlign: "center" }}>{r.annual}</td>
@@ -935,7 +964,7 @@ function StockLevelCalculator({ onComplete, completed }) {
       {result && (
         <Card>
           <div style={{ fontWeight: 800 }}>Stock levels</div>
-          <div style={{ fontSize: 12, color: "#64748b", marginBottom: 6 }}>IIP Ch 2.3.1</div>
+          <div style={{ fontSize: 12, color: "var(--text-muted)", marginBottom: 6 }}>IIP Ch 2.3.1</div>
           <div style={{ display: "grid", gap: 4 }}>
             <div>Safety stock (25% of need): {result.safety} doses</div>
             <div>Lead time consumption (need ÷ 4): {result.leadTimeConsumption} doses</div>
@@ -991,7 +1020,7 @@ function WastageCalculator({ onComplete }) {
       {result && (
         <Card>
           <div style={{ fontWeight: 800 }}>Wastage summary</div>
-          <div style={{ fontSize: 12, color: "#64748b", marginBottom: 6 }}>IIP Ch 2.4.1</div>
+          <div style={{ fontSize: 12, color: "var(--text-muted)", marginBottom: 6 }}>IIP Ch 2.4.1</div>
           <div style={{ display: "grid", gap: 4 }}>
             <div>Doses available for use: {result.used}</div>
             <div>Vaccine Usage Rate (VUR): {result.VUR}%</div>
@@ -1033,13 +1062,13 @@ function MDVPChecker({ onChangeComplete }) {
   return (
     <div style={{ display: "grid", gap: 8 }}>
       <div style={{ fontWeight: 700 }}>MDVP checklist</div>
-      <div style={{ fontSize: 12, color: "#64748b" }}>IIP Ch 2.4.2 — Ethiopia applies MDVP to bOPV, IPV, Td, PCV-13.</div>
+      <div style={{ fontSize: 12, color: "var(--text-muted)" }}>IIP Ch 2.4.2 — Ethiopia applies MDVP to bOPV, IPV, Td, PCV-13.</div>
       {criteria.map(c => (
-        <div key={c.key} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: 10, borderRadius: 10, border: "1px solid #E6EDF3", background: "#fff" }}>
+        <div key={c.key} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: 10, borderRadius: 10, border: "1px solid var(--border)", background: "var(--surface)" }}>
           <div style={{ fontSize: 13 }}>{c.label}</div>
           <div style={{ display: "flex", gap: 8 }}>
-            <button onClick={() => setAnswers(a => ({ ...a, [c.key]: true }))} style={{ padding: 8, borderRadius: 8, background: answers[c.key] === true ? "#10b981" : "#F1F5F9", color: answers[c.key] === true ? "#fff" : "#475569" }}>Yes</button>
-            <button onClick={() => setAnswers(a => ({ ...a, [c.key]: false }))} style={{ padding: 8, borderRadius: 8, background: answers[c.key] === false ? "#ef4444" : "#F1F5F9", color: answers[c.key] === false ? "#fff" : "#475569" }}>No</button>
+            <button onClick={() => setAnswers(a => ({ ...a, [c.key]: true }))} style={{ padding: 8, borderRadius: 8, background: answers[c.key] === true ? "#10b981" : "var(--surface-alt)", color: answers[c.key] === true ? "#fff" : "var(--text)" }}>Yes</button>
+            <button onClick={() => setAnswers(a => ({ ...a, [c.key]: false }))} style={{ padding: 8, borderRadius: 8, background: answers[c.key] === false ? "#ef4444" : "var(--surface-alt)", color: answers[c.key] === false ? "#fff" : "var(--text)" }}>No</button>
           </div>
         </div>
       ))}
@@ -1065,7 +1094,7 @@ function VVMChecker({ onChangeComplete }) {
   return (
     <div style={{ display: "grid", gap: 8 }}>
       <div style={{ fontWeight: 700 }}>VVM stage checker</div>
-      <div style={{ fontSize: 12, color: "#64748b" }}>IIP Ch 2.6.2 — inner square vs. outer circle color.</div>
+      <div style={{ fontSize: 12, color: "var(--text-muted)" }}>IIP Ch 2.6.2 — inner square vs. outer circle color.</div>
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
         <button onClick={() => setStage(1)} style={{ padding: 12, borderRadius: 10, background: "#E6F7F1", border: "1px solid #10b981" }}>Stage 1 — square lighter</button>
         <button onClick={() => setStage(2)} style={{ padding: 12, borderRadius: 10, background: "#E6F7F1", border: "1px solid #10b981" }}>Stage 2 — square lighter</button>
@@ -1151,7 +1180,7 @@ function TemperatureExcursionHelper() {
   return (
     <div style={{ display: "grid", gap: 8 }}>
       <div style={{ fontWeight: 700 }}>Temperature excursion action helper</div>
-      <div style={{ fontSize: 12, color: "#64748b" }}>IIP Ch 2.6.3 — enter the fridge reading (morning/evening check) or select a range to see required actions.</div>
+      <div style={{ fontSize: 12, color: "var(--text-muted)" }}>IIP Ch 2.6.3 — enter the fridge reading (morning/evening check) or select a range to see required actions.</div>
 
       <div style={{ display: "grid", gridTemplateColumns: "1fr auto", gap: 8, alignItems: "end" }}>
         <Input label="Morning reading (°C)" type="number" value={readings.morning} placeholder="e.g. 5"
@@ -1165,10 +1194,10 @@ function TemperatureExcursionHelper() {
       </div>
       {readError && <div style={{ color: ICON_RED, fontSize: 12 }}>{readError}</div>}
 
-      <div style={{ fontSize: 12, color: "#64748b", marginTop: 4 }}>Or select a reading directly:</div>
+      <div style={{ fontSize: 12, color: "var(--text-muted)", marginTop: 4 }}>Or select a reading directly:</div>
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
         {ranges.map(r => (
-          <button key={r.key} onClick={() => setRange(r.key)} style={{ padding: 10, borderRadius: 10, border: range === r.key ? `2px solid ${TILE_BLUE}` : "1px solid #E6EDF3", background: range === r.key ? "#EAF1F8" : "#fff", fontSize: 12, fontWeight: 700 }}>{r.label}</button>
+          <button key={r.key} onClick={() => setRange(r.key)} style={{ padding: 10, borderRadius: 10, border: range === r.key ? `2px solid ${TILE_BLUE}` : "1px solid var(--border)", background: range === r.key ? "#EAF1F8" : "#fff", fontSize: 12, fontWeight: 700 }}>{r.label}</button>
         ))}
       </div>
 
@@ -1189,10 +1218,10 @@ function TemperatureExcursionHelper() {
 
       {log.length > 0 && (
         <div style={{ marginTop: 6 }}>
-          <div style={{ fontSize: 12, fontWeight: 700, color: "#334155", marginBottom: 4 }}>Recent readings</div>
+          <div style={{ fontSize: 12, fontWeight: 700, color: "var(--text)", marginBottom: 4 }}>Recent readings</div>
           <div style={{ display: "grid", gap: 4 }}>
             {log.map((entry, i) => (
-              <div key={i} style={{ fontSize: 12, color: "#64748b" }}>
+              <div key={i} style={{ fontSize: 12, color: "var(--text-muted)" }}>
                 {entry.time} — {entry.period === "morning" ? "Morning" : "Evening"}: {entry.value}°C ({ranges.find(r => r.key === entry.range)?.label})
               </div>
             ))}
@@ -1216,13 +1245,13 @@ function ShakeTestChecker() {
   return (
     <div style={{ display: "grid", gap: 8 }}>
       <div style={{ fontWeight: 700 }}>Shake Test decision tree</div>
-      <div style={{ fontSize: 12, color: "#64748b" }}>IIP Ch 2.6.4 — use when a freeze-sensitive vaccine (IPV, Penta, PCV-13, HepB, Td) may have been frozen.</div>
+      <div style={{ fontSize: 12, color: "var(--text-muted)" }}>IIP Ch 2.6.4 — use when a freeze-sensitive vaccine (IPV, Penta, PCV-13, HepB, Td) may have been frozen.</div>
 
-      <div style={{ padding: 10, borderRadius: 10, border: "1px solid #E6EDF3", background: "#fff" }}>
+      <div style={{ padding: 10, borderRadius: 10, border: "1px solid var(--border)", background: "var(--surface)" }}>
         <div style={{ fontSize: 13, marginBottom: 8 }}>Step 1: Do you have a control vial (same vaccine, deliberately frozen solid then thawed)?</div>
         <div style={{ display: "flex", gap: 8 }}>
-          <button onClick={() => setFrozeControl(true)} style={{ padding: 8, borderRadius: 8, background: frozeControl === true ? TILE_BLUE : "#F1F5F9", color: frozeControl === true ? "#fff" : "#475569" }}>Yes</button>
-          <button onClick={() => setFrozeControl(false)} style={{ padding: 8, borderRadius: 8, background: frozeControl === false ? "#ef4444" : "#F1F5F9", color: frozeControl === false ? "#fff" : "#475569" }}>No</button>
+          <button onClick={() => setFrozeControl(true)} style={{ padding: 8, borderRadius: 8, background: frozeControl === true ? TILE_BLUE : "var(--surface-alt)", color: frozeControl === true ? "#fff" : "var(--text)" }}>Yes</button>
+          <button onClick={() => setFrozeControl(false)} style={{ padding: 8, borderRadius: 8, background: frozeControl === false ? "#ef4444" : "var(--surface-alt)", color: frozeControl === false ? "#fff" : "var(--text)" }}>No</button>
         </div>
       </div>
 
@@ -1231,11 +1260,11 @@ function ShakeTestChecker() {
       )}
 
       {frozeControl === true && (
-        <div style={{ padding: 10, borderRadius: 10, border: "1px solid #E6EDF3", background: "#fff" }}>
+        <div style={{ padding: 10, borderRadius: 10, border: "1px solid var(--border)", background: "var(--surface)" }}>
           <div style={{ fontSize: 13, marginBottom: 8 }}>Step 2: After shaking and letting both vials stand, did the suspect vial sediment at the same rate or faster than the control vial?</div>
           <div style={{ display: "flex", gap: 8 }}>
-            <button onClick={() => setSedimentFaster(true)} style={{ padding: 8, borderRadius: 8, background: sedimentFaster === true ? "#ef4444" : "#F1F5F9", color: sedimentFaster === true ? "#fff" : "#475569" }}>Yes</button>
-            <button onClick={() => setSedimentFaster(false)} style={{ padding: 8, borderRadius: 8, background: sedimentFaster === false ? "#10b981" : "#F1F5F9", color: sedimentFaster === false ? "#fff" : "#475569" }}>No</button>
+            <button onClick={() => setSedimentFaster(true)} style={{ padding: 8, borderRadius: 8, background: sedimentFaster === true ? "#ef4444" : "var(--surface-alt)", color: sedimentFaster === true ? "#fff" : "var(--text)" }}>Yes</button>
+            <button onClick={() => setSedimentFaster(false)} style={{ padding: 8, borderRadius: 8, background: sedimentFaster === false ? "#10b981" : "var(--surface-alt)", color: sedimentFaster === false ? "#fff" : "var(--text)" }}>No</button>
           </div>
         </div>
       )}
@@ -1260,7 +1289,7 @@ function ShakeTestChecker() {
       )}
 
       {(frozeControl !== null) && (
-        <button onClick={reset} style={{ padding: 8, borderRadius: 8, background: "#F1F5F9", border: "none", color: "#475569", fontSize: 12, width: "fit-content" }}>Start over</button>
+        <button onClick={reset} style={{ padding: 8, borderRadius: 8, background: "var(--surface-alt)", border: "none", color: "var(--text)", fontSize: 12, width: "fit-content" }}>Start over</button>
       )}
     </div>
   );
@@ -1341,7 +1370,7 @@ function ScenarioPlayer({ scenario, onBack, onComplete }) {
           <div style={{ marginTop: 8 }}>{outcome.text}</div>
         </Card>
         <div style={{ display: "flex", gap: 8 }}>
-          <button onClick={() => { setFinished(false); setOutcome(null); }} style={{ padding: 10, borderRadius: 8, background: "#F1F5F9" }}>Try again</button>
+          <button onClick={() => { setFinished(false); setOutcome(null); }} style={{ padding: 10, borderRadius: 8, background: "var(--surface-alt)" }}>Try again</button>
         </div>
       </div>
     );
@@ -1351,9 +1380,9 @@ function ScenarioPlayer({ scenario, onBack, onComplete }) {
   return (
     <Card>
       <div style={{ fontWeight: 800 }}>{scenario.title}</div>
-      <div style={{ color: "#64748b", marginTop: 8 }}>{step.text}</div>
+      <div style={{ color: "var(--text-muted)", marginTop: 8 }}>{step.text}</div>
       <div style={{ marginTop: 10, display: "grid", gap: 8 }}>
-        {step.options.map((o, i) => <button key={i} onClick={() => choose(i)} style={{ padding: 12, borderRadius: 10, border: "1px solid #E6EDF3", background: "#fff", textAlign: "left" }}>{o}</button>)}
+        {step.options.map((o, i) => <button key={i} onClick={() => choose(i)} style={{ padding: 12, borderRadius: 10, border: "1px solid var(--border)", background: "var(--surface)", textAlign: "left" }}>{o}</button>)}
       </div>
     </Card>
   );
@@ -1381,21 +1410,21 @@ function MiniAssessment({ onComplete, existing = 0 }) {
       <div style={{ display: "grid", gap: 10 }}>
         <Card>
           <div style={{ fontWeight: 800 }}>{score}/{QUIZ.length}</div>
-          <div style={{ color: "#64748b" }}>{pct}% correct</div>
+          <div style={{ color: "var(--text-muted)" }}>{pct}% correct</div>
         </Card>
-        <div><button onClick={() => { setIdx(0); setSelected(null); setScore(0); setDone(false); }} style={{ padding: 10, borderRadius: 8, background: "#F1F5F9" }}>Retake</button></div>
+        <div><button onClick={() => { setIdx(0); setSelected(null); setScore(0); setDone(false); }} style={{ padding: 10, borderRadius: 8, background: "var(--surface-alt)" }}>Retake</button></div>
       </div>
     );
   }
 
   return (
     <div style={{ display: "grid", gap: 10 }}>
-      <div style={{ display: "flex", justifyContent: "space-between" }}><div>Question {idx + 1}/{QUIZ.length}</div><div style={{ color: "#64748b" }}>{q.source}</div></div>
+      <div style={{ display: "flex", justifyContent: "space-between" }}><div>Question {idx + 1}/{QUIZ.length}</div><div style={{ color: "var(--text-muted)" }}>{q.source}</div></div>
       <Card>
         <div style={{ fontWeight: 800 }}>{q.q}</div>
         <div style={{ marginTop: 10, display: "grid", gap: 8 }}>
           {q.options.map((o, i) => (
-            <button key={i} onClick={() => setSelected(i)} style={{ padding: 12, borderRadius: 10, background: selected === i ? "#DDEFFB" : "#fff", border: "1px solid #E6EDF3", textAlign: "left" }}>{o}</button>
+            <button key={i} onClick={() => setSelected(i)} style={{ padding: 12, borderRadius: 10, background: selected === i ? "#DDEFFB" : "#fff", border: "1px solid var(--border)", textAlign: "left" }}>{o}</button>
           ))}
         </div>
       </Card>
@@ -1407,15 +1436,15 @@ function MiniAssessment({ onComplete, existing = 0 }) {
 /* ===========================
    Profile screen
    =========================== */
-function ProfileScreen({ user, onLogout, onOpenOffline, language, setLanguage }) {
+function ProfileScreen({ user, onLogout, onOpenOffline, language, setLanguage, theme, setTheme }) {
   return (
     <div style={{ display: "grid", gap: 12 }}>
       <Card style={{ display: "flex", gap: 12, alignItems: "center" }}>
-        <div style={{ width: 56, height: 56, borderRadius: 12, background: "#F1F5F9", display: "flex", justifyContent: "center", alignItems: "center" }}><User size={28} /></div>
+        <div style={{ width: 56, height: 56, borderRadius: 12, background: "var(--surface-alt)", display: "flex", justifyContent: "center", alignItems: "center" }}><User size={28} /></div>
         <div>
           <div style={{ fontWeight: 800 }}>{user?.name || "Health Worker"}</div>
-          <div style={{ color: "#64748b" }}>{user?.facility}</div>
-          <div style={{ color: "#64748b", marginTop: 6 }}>Role: {user?.role} · {user?.phone}</div>
+          <div style={{ color: "var(--text-muted)" }}>{user?.facility}</div>
+          <div style={{ color: "var(--text-muted)", marginTop: 6 }}>Role: {user?.role} · {user?.phone}</div>
         </div>
       </Card>
 
@@ -1431,9 +1460,24 @@ function ProfileScreen({ user, onLogout, onOpenOffline, language, setLanguage })
         </select>
       </Card>
 
+      <Card>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+          <div style={{ display: "flex", gap: 10, alignItems: "center" }}>{theme === "dark" ? <Moon size={18} /> : <Sun size={18} />} <div>Theme</div></div>
+        </div>
+        <div style={{ display: "flex", gap: 8, marginTop: 10 }}>
+          <button onClick={() => setTheme("light")} style={{ flex: 1, padding: 10, borderRadius: 10, display: "flex", gap: 6, alignItems: "center", justifyContent: "center", fontWeight: 700, fontSize: 13, border: theme === "light" ? `2px solid ${TILE_BLUE}` : "1px solid var(--border)", background: theme === "light" ? "var(--surface-alt)" : "var(--surface)", color: "var(--text)" }}>
+            <Sun size={14} /> Light
+          </button>
+          <button onClick={() => setTheme("dark")} style={{ flex: 1, padding: 10, borderRadius: 10, display: "flex", gap: 6, alignItems: "center", justifyContent: "center", fontWeight: 700, fontSize: 13, border: theme === "dark" ? `2px solid ${TILE_BLUE}` : "1px solid var(--border)", background: theme === "dark" ? "var(--surface-alt)" : "var(--surface)", color: "var(--text)" }}>
+            <Moon size={14} /> Dark
+          </button>
+        </div>
+        <div style={{ color: "var(--text-muted)", fontSize: 12, marginTop: 8 }}>Light is the default look. Dark switches the whole app to a dark theme.</div>
+      </Card>
+
       <Card style={{ display: "flex", justifyContent: "space-between", alignItems: "center", cursor: "pointer" }} onClick={onOpenOffline}>
         <div style={{ display: "flex", gap: 10, alignItems: "center" }}><Download size={18} /> <div>Offline content</div></div>
-        <ChevronRight size={18} style={{ color: "#94a3b8" }} />
+        <ChevronRight size={18} style={{ color: "var(--text-subtle)" }} />
       </Card>
 
       <div><button onClick={onLogout} style={{ padding: 12, borderRadius: 12, background: ICON_RED, color: "#fff", display: "flex", gap: 8, alignItems: "center", border: "none" }}><LogOut size={14} /> Logout</button></div>
@@ -1503,10 +1547,10 @@ function SessionPlanningCalculator({ onComplete, completed }) {
       {completed && <div style={{ color: "#10b981", fontWeight: 700 }}><CheckCircle size={14} style={{ marginRight: 4 }} />Module completed</div>}
       <Card>
         <div style={{ fontWeight: 800 }}>Size of immunization sessions calculation</div>
-        <div style={{ color: "#64748b", marginTop: 6, fontSize: 13 }}>
+        <div style={{ color: "var(--text-muted)", marginTop: 6, fontSize: 13 }}>
           Use the session-based method for fixed and outreach posts. Enter the number of posts, operating weeks, sessions per week, average vials used per session, and doses per vial.
         </div>
-        <div style={{ fontSize: 11, color: "#94a3b8", marginTop: 6 }}>IIP Ch 2.2.1, Table 2.1</div>
+        <div style={{ fontSize: 11, color: "var(--text-subtle)", marginTop: 6 }}>IIP Ch 2.2.1, Table 2.1</div>
       </Card>
 
       <Input label="Number of immunization posts" value={inputs.posts} onChange={e => change("posts", e.target.value)} placeholder="e.g. 20" />
@@ -1525,7 +1569,7 @@ function SessionPlanningCalculator({ onComplete, completed }) {
         <>
           <Card>
             <div style={{ fontWeight: 800 }}>Session calculation results</div>
-            <div style={{ fontSize: 12, color: "#64748b", marginBottom: 8 }}>IIP Ch 2.2.1 session-based formula</div>
+            <div style={{ fontSize: 12, color: "var(--text-muted)", marginBottom: 8 }}>IIP Ch 2.2.1 session-based formula</div>
             <div style={{ display: "grid", gap: 6, fontSize: 14 }}>
               <div>Annual sessions: <b>{result.annualSessions}</b></div>
               <div>Annual vials required: <b>{result.annualVials}</b></div>
@@ -1543,8 +1587,8 @@ function SessionPlanningCalculator({ onComplete, completed }) {
             />
           </Card>
           <div style={{ display: "flex", gap: 8 }}>
-            <button onClick={() => setResult(null)} style={{ flex: 1, padding: 10, borderRadius: 10, background: "#F1F5F9" }}>New calculation</button>
-            <button onClick={reset} style={{ flex: 1, padding: 10, borderRadius: 10, background: "#fff", border: "1px solid #E6EDF3" }}>Reset</button>
+            <button onClick={() => setResult(null)} style={{ flex: 1, padding: 10, borderRadius: 10, background: "var(--surface-alt)" }}>New calculation</button>
+            <button onClick={reset} style={{ flex: 1, padding: 10, borderRadius: 10, background: "var(--surface)", border: "1px solid var(--border)" }}>Reset</button>
           </div>
         </>
       )}
@@ -1554,6 +1598,7 @@ function SessionPlanningCalculator({ onComplete, completed }) {
 
 export default function ImmunizationChatBot() {
   const [phase, setPhase] = useState("language"); // language -> login -> consent -> app
+  const [theme, setTheme] = useState("light"); // "light" (default, unchanged look) | "dark"
   const [screen, setScreen] = useState("home");
   const [forecastView, setForecastView] = useState("single");
   const [stockView, setStockView] = useState(null);
@@ -1726,7 +1771,7 @@ export default function ImmunizationChatBot() {
   if (phase !== "app") {
     return (
       <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", background: "#F3F4F6", padding: 20 }}>
-        <div style={{ width: PHONE_WIDTH, height: PHONE_HEIGHT, borderRadius: 24, overflow: "hidden", background: "#fff", boxShadow: "0 40px 100px rgba(0,0,0,0.35)", display: "flex", flexDirection: "column", fontFamily: APP_FONT }}>
+        <div style={{ ...THEME_VARS[theme], width: PHONE_WIDTH, height: PHONE_HEIGHT, borderRadius: 24, overflow: "hidden", background: "var(--bg)", color: "var(--text)", boxShadow: "0 40px 100px rgba(0,0,0,0.35)", display: "flex", flexDirection: "column", fontFamily: APP_FONT }}>
         <style>{`@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');`}</style>
           <div style={{ height: 12, display: "flex", justifyContent: "center", alignItems: "center" }}><div style={{ width: 120, height: 6, borderRadius: 8, background: "#000" }} /></div>
 
@@ -1743,32 +1788,32 @@ export default function ImmunizationChatBot() {
               <div style={{ display: "grid", gap: 14 }}>
                 <h3 style={{ margin: 0 }}>Choose your language</h3>
                 <div style={{ display: "grid", gap: 10 }}>
-                  <button onClick={() => setLanguage("en")} style={{ padding: 14, borderRadius: 12, textAlign: "left", background: language === "en" ? "#EAF1F8" : "#F8FAFC", border: language === "en" ? `2px solid ${TILE_BLUE}` : "1px solid #E6EDF3" }}>
+                  <button onClick={() => setLanguage("en")} style={{ padding: 14, borderRadius: 12, textAlign: "left", background: language === "en" ? "#EAF1F8" : "var(--surface-alt2)", border: language === "en" ? `2px solid ${TILE_BLUE}` : "1px solid var(--border)" }}>
                     <div style={{ fontWeight: 700 }}>English</div>
                   </button>
-                  <button onClick={() => setLanguage("am")} style={{ padding: 14, borderRadius: 12, textAlign: "left", background: language === "am" ? "#EAF1F8" : "#fff", border: language === "am" ? `2px solid ${TILE_BLUE}` : "1px solid #E6EDF3" }}>
+                  <button onClick={() => setLanguage("am")} style={{ padding: 14, borderRadius: 12, textAlign: "left", background: language === "am" ? "#EAF1F8" : "#fff", border: language === "am" ? `2px solid ${TILE_BLUE}` : "1px solid var(--border)" }}>
                     <div style={{ fontWeight: 700 }}>አማርኛ</div>
-                    <div style={{ color: "#64748b", fontSize: 13 }}>Amharic</div>
+                    <div style={{ color: "var(--text-muted)", fontSize: 13 }}>Amharic</div>
                   </button>
-                  <button onClick={() => setLanguage("om")} style={{ padding: 14, borderRadius: 12, textAlign: "left", background: language === "om" ? "#EAF1F8" : "#fff", border: language === "om" ? `2px solid ${TILE_BLUE}` : "1px solid #E6EDF3" }}>
+                  <button onClick={() => setLanguage("om")} style={{ padding: 14, borderRadius: 12, textAlign: "left", background: language === "om" ? "#EAF1F8" : "#fff", border: language === "om" ? `2px solid ${TILE_BLUE}` : "1px solid var(--border)" }}>
                     <div style={{ fontWeight: 700 }}>Afaan Oromoo</div>
-                    <div style={{ color: "#64748b", fontSize: 13 }}>Afan Oromo</div>
+                    <div style={{ color: "var(--text-muted)", fontSize: 13 }}>Afan Oromo</div>
                   </button>
-                  <button onClick={() => setLanguage("ti")} style={{ padding: 14, borderRadius: 12, textAlign: "left", background: language === "ti" ? "#EAF1F8" : "#fff", border: language === "ti" ? `2px solid ${TILE_BLUE}` : "1px solid #E6EDF3" }}>
+                  <button onClick={() => setLanguage("ti")} style={{ padding: 14, borderRadius: 12, textAlign: "left", background: language === "ti" ? "#EAF1F8" : "#fff", border: language === "ti" ? `2px solid ${TILE_BLUE}` : "1px solid var(--border)" }}>
                     <div style={{ fontWeight: 700 }}>ትግርኛ</div>
-                    <div style={{ color: "#64748b", fontSize: 13 }}>Tigrigna</div>
+                    <div style={{ color: "var(--text-muted)", fontSize: 13 }}>Tigrigna</div>
                   </button>
-                  <button onClick={() => setLanguage("so")} style={{ padding: 14, borderRadius: 12, textAlign: "left", background: language === "so" ? "#EAF1F8" : "#fff", border: language === "so" ? `2px solid ${TILE_BLUE}` : "1px solid #E6EDF3" }}>
+                  <button onClick={() => setLanguage("so")} style={{ padding: 14, borderRadius: 12, textAlign: "left", background: language === "so" ? "#EAF1F8" : "#fff", border: language === "so" ? `2px solid ${TILE_BLUE}` : "1px solid var(--border)" }}>
                     <div style={{ fontWeight: 700 }}>Soomaali</div>
-                    <div style={{ color: "#64748b", fontSize: 13 }}>Somali</div>
+                    <div style={{ color: "var(--text-muted)", fontSize: 13 }}>Somali</div>
                   </button>
-                  <button onClick={() => setLanguage("aa")} style={{ padding: 14, borderRadius: 12, textAlign: "left", background: language === "aa" ? "#EAF1F8" : "#fff", border: language === "aa" ? `2px solid ${TILE_BLUE}` : "1px solid #E6EDF3" }}>
+                  <button onClick={() => setLanguage("aa")} style={{ padding: 14, borderRadius: 12, textAlign: "left", background: language === "aa" ? "#EAF1F8" : "#fff", border: language === "aa" ? `2px solid ${TILE_BLUE}` : "1px solid var(--border)" }}>
                     <div style={{ fontWeight: 700 }}>Qafar af</div>
-                    <div style={{ color: "#64748b", fontSize: 13 }}>Afar</div>
+                    <div style={{ color: "var(--text-muted)", fontSize: 13 }}>Afar</div>
                   </button>
                 </div>
                 <button onClick={() => setPhase("login")} style={{ marginTop: 8, padding: 14, borderRadius: 12, background: TILE_BLUE, color: "#fff", fontWeight: 700 }}>Continue</button>
-                <div style={{ marginTop: 16, textAlign: "center", color: "#94a3b8", fontSize: 11, lineHeight: 1.5 }}>
+                <div style={{ marginTop: 16, textAlign: "center", color: "var(--text-subtle)", fontSize: 11, lineHeight: 1.5 }}>
                   Prepared by Amref Health Africa™ in Ethiopia<br />in partnership with the Federal Ministry of Health™, Ethiopia
                 </div>
               </div>
@@ -1778,12 +1823,12 @@ export default function ImmunizationChatBot() {
             {phase === "login" && (
               <div style={{ display: "grid", gap: 14 }}>
                 <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                  <div style={{ width: 40, height: 40, borderRadius: 10, background: "#F1F5F9", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                  <div style={{ width: 40, height: 40, borderRadius: 10, background: "var(--surface-alt)", display: "flex", alignItems: "center", justifyContent: "center" }}>
                     <Phone size={18} style={{ color: TILE_BLUE }} />
                   </div>
                   <div>
                     <h3 style={{ margin: 0 }}>Sign in</h3>
-                    <div style={{ color: "#64748b", fontSize: 12 }}>Phone-based login with OTP (demo — any value works)</div>
+                    <div style={{ color: "var(--text-muted)", fontSize: 12 }}>Phone-based login with OTP (demo — any value works)</div>
                   </div>
                 </div>
 
@@ -1793,7 +1838,7 @@ export default function ImmunizationChatBot() {
                   <button onClick={() => setOtpSent(true)} style={{ padding: 12, borderRadius: 12, background: TILE_BLUE, color: "#fff", fontWeight: 700 }}>Send OTP</button>
                 ) : (
                   <>
-                    <div style={{ padding: 10, borderRadius: 10, background: "#F1F5F9", fontSize: 13, color: "#334155" }}>
+                    <div style={{ padding: 10, borderRadius: 10, background: "var(--surface-alt)", fontSize: 13, color: "var(--text)" }}>
                       Demo mode: no SMS is actually sent. Enter anything below and tap Next to continue.
                     </div>
                     <Input label="Enter OTP" value={otpInput} onChange={e => setOtpInput(e.target.value)} placeholder="e.g. 1234" />
@@ -1810,7 +1855,7 @@ export default function ImmunizationChatBot() {
                   Next
                 </button>
                 <div style={{ textAlign: "center" }}>
-                  <button onClick={() => setPhase("language")} style={{ background: "transparent", border: "none", color: "#64748b", fontSize: 13 }}>← Back</button>
+                  <button onClick={() => setPhase("language")} style={{ background: "transparent", border: "none", color: "var(--text-muted)", fontSize: 13 }}>← Back</button>
                 </div>
               </div>
             )}
@@ -1822,19 +1867,19 @@ export default function ImmunizationChatBot() {
                   <ShieldCheck size={22} style={{ color: TILE_BLUE }} />
                   <h3 style={{ margin: 0 }}>Consent & Privacy</h3>
                 </div>
-                <Card style={{ fontSize: 13, color: "#334155", lineHeight: 1.5 }}>
+                <Card style={{ fontSize: 13, color: "var(--text)", lineHeight: 1.5 }}>
                   This app stores your role, facility, and usage data to provide guidance and improve content.
                   Data is handled per Ethiopian data protection regulations. This tool uses AI and rule-based
                   guidance grounded in the IIP manual — it can occasionally be wrong, so always verify critical
                   decisions and escalate to a human focal point when unsure.
                 </Card>
-                <div onClick={() => setConsented(c => !c)} style={{ display: "flex", gap: 10, alignItems: "center", padding: 12, borderRadius: 10, border: "1px solid #E6EDF3", cursor: "pointer" }}>
+                <div onClick={() => setConsented(c => !c)} style={{ display: "flex", gap: 10, alignItems: "center", padding: 12, borderRadius: 10, border: "1px solid var(--border)", cursor: "pointer" }}>
                   <div style={{ width: 20, height: 20, borderRadius: 5, background: consented ? TILE_BLUE : "#fff", border: `2px solid ${TILE_BLUE}`, display: "flex", alignItems: "center", justifyContent: "center" }}>
                     {consented && <CheckCircle size={14} color="#fff" />}
                   </div>
                   <div style={{ fontSize: 13 }}>I have read and accept the consent & privacy notice.</div>
                 </div>
-                <button disabled={!consented} onClick={() => setPhase("app")} style={{ padding: 14, borderRadius: 12, background: consented ? TILE_BLUE : "#94a3b8", color: "#fff", fontWeight: 700 }}>Enter App</button>
+                <button disabled={!consented} onClick={() => setPhase("app")} style={{ padding: 14, borderRadius: 12, background: consented ? TILE_BLUE : "var(--text-subtle)", color: "#fff", fontWeight: 700 }}>Enter App</button>
               </div>
             )}
           </div>
@@ -1846,7 +1891,7 @@ export default function ImmunizationChatBot() {
   /* ============ MAIN APP ============ */
   return (
     <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", background: "#F3F4F6", padding: 20 }}>
-      <div style={{ width: PHONE_WIDTH, height: PHONE_HEIGHT, borderRadius: 24, overflow: "hidden", background: "#fff", boxShadow: "0 40px 100px rgba(0,0,0,0.35)", display: "flex", flexDirection: "column", fontFamily: APP_FONT }}>
+      <div style={{ ...THEME_VARS[theme], width: PHONE_WIDTH, height: PHONE_HEIGHT, borderRadius: 24, overflow: "hidden", background: "var(--bg)", color: "var(--text)", boxShadow: "0 40px 100px rgba(0,0,0,0.35)", display: "flex", flexDirection: "column", fontFamily: APP_FONT }}>
         <style>{`@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');`}</style>
         <div style={{ height: 12, display: "flex", justifyContent: "center", alignItems: "center" }}>
           <div style={{ width: 120, height: 6, borderRadius: 8, background: "#000" }} />
@@ -1869,8 +1914,8 @@ export default function ImmunizationChatBot() {
             </div>
           </div>
         ) : (
-          <div style={{ padding: "14px 18px", display: "flex", alignItems: "center", gap: 10, borderBottom: "1px solid #E6EDF3" }}>
-            <div style={{ fontWeight: 800, fontSize: 18, color: "#0f172a" }}>{PAGE_TITLES[screen] || ""}</div>
+          <div style={{ padding: "14px 18px", display: "flex", alignItems: "center", gap: 10, borderBottom: "1px solid var(--border)" }}>
+            <div style={{ fontWeight: 800, fontSize: 18, color: "var(--text)" }}>{PAGE_TITLES[screen] || ""}</div>
           </div>
         )}
 
@@ -1878,7 +1923,7 @@ export default function ImmunizationChatBot() {
         <div style={{ flex: 1, overflowY: "auto", padding: 16 }} ref={scrollRef}>
           {screen === "home" && (
             <>
-              <div onClick={() => setOnline(o => !o)} style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 10, cursor: "pointer", fontSize: 12, color: online ? "#10b981" : "#94a3b8", fontWeight: 700 }}>
+              <div onClick={() => setOnline(o => !o)} style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 10, cursor: "pointer", fontSize: 12, color: online ? "#10b981" : "var(--text-subtle)", fontWeight: 700 }}>
                 {online ? <Wifi size={14} /> : <WifiOff size={14} />}
                 {online ? "Online" : "Offline — showing cached content"}
               </div>
@@ -1899,7 +1944,7 @@ export default function ImmunizationChatBot() {
                     <div style={{ width: 40, height: 40, borderRadius: 10, background: "#fff", display: "flex", alignItems: "center", justifyContent: "center" }}><PlayCircle size={18} style={{ color: TILE_BLUE }} /></div>
                     <div style={{ textAlign: "left" }}>
                       <div style={{ fontWeight: 800, fontSize: 13 }}>{started ? "Continue learning" : "Start learning"}</div>
-                      <div style={{ color: "#64748b", fontSize: 12 }}>{MODULE_META[nextKey].label}</div>
+                      <div style={{ color: "var(--text-muted)", fontSize: 12 }}>{MODULE_META[nextKey].label}</div>
                     </div>
                     <ChevronRight size={18} style={{ marginLeft: "auto", color: TILE_BLUE }} />
                   </div>
@@ -1907,13 +1952,13 @@ export default function ImmunizationChatBot() {
               })()}
 
               <div style={{ marginBottom: 12 }}>
-                <div onClick={() => setScreen("chat")} style={{ display: "flex", gap: 12, alignItems: "center", padding: 12, borderRadius: 12, background: "#fff", border: "1px solid #E6EDF3", cursor: "pointer" }}>
-                  <div style={{ width: 44, height: 44, borderRadius: 10, background: "#F1F5F9", display: "flex", alignItems: "center", justifyContent: "center" }}><Sparkles size={18} style={{ color: TILE_BLUE }} /></div>
+                <div onClick={() => setScreen("chat")} style={{ display: "flex", gap: 12, alignItems: "center", padding: 12, borderRadius: 12, background: "var(--surface)", border: "1px solid var(--border)", cursor: "pointer" }}>
+                  <div style={{ width: 44, height: 44, borderRadius: 10, background: "var(--surface-alt)", display: "flex", alignItems: "center", justifyContent: "center" }}><Sparkles size={18} style={{ color: TILE_BLUE }} /></div>
                   <div style={{ textAlign: "left" }}>
                     <div style={{ fontWeight: 800 }}>Ask a question…</div>
-                    <div style={{ color: "#64748b" }}>e.g. "At what temperature is Penta stored?"</div>
+                    <div style={{ color: "var(--text-muted)" }}>e.g. "At what temperature is Penta stored?"</div>
                   </div>
-                  <ChevronRight size={18} style={{ marginLeft: "auto", color: "#94a3b8" }} />
+                  <ChevronRight size={18} style={{ marginLeft: "auto", color: "var(--text-subtle)" }} />
                 </div>
               </div>
 
@@ -1947,9 +1992,9 @@ export default function ImmunizationChatBot() {
                 <SectionTag>Frequently asked</SectionTag>
                 <div style={{ display: "grid", gap: 8 }}>
                   {FAQS.slice(0, 4).map((f, i) => (
-                    <button key={i} onClick={() => { setScreen("chat"); setTimeout(() => send(f.q), 150); }} style={{ padding: 14, borderRadius: 12, background: "#fff", border: "1px solid #E6EDF3", textAlign: "left", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                    <button key={i} onClick={() => { setScreen("chat"); setTimeout(() => send(f.q), 150); }} style={{ padding: 14, borderRadius: 12, background: "var(--surface)", border: "1px solid var(--border)", textAlign: "left", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                       <div style={{ fontWeight: 700 }}>{f.q}</div>
-                      <ChevronRight size={16} style={{ color: "#94a3b8" }} />
+                      <ChevronRight size={16} style={{ color: "var(--text-subtle)" }} />
                     </button>
                   ))}
                 </div>
@@ -1960,13 +2005,13 @@ export default function ImmunizationChatBot() {
                   <div style={{ width: 40, height: 40, borderRadius: 10, background: "#fff", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}><Info size={18} style={{ color: TILE_BLUE }} /></div>
                   <div style={{ flex: 1 }}>
                     <div style={{ fontWeight: 800, fontSize: 13 }}>General Information</div>
-                    <div style={{ color: "#64748b", fontSize: 12 }}>Minimum requirements & key facts that apply system-wide</div>
+                    <div style={{ color: "var(--text-muted)", fontSize: 12 }}>Minimum requirements & key facts that apply system-wide</div>
                   </div>
                   <ChevronRight size={18} style={{ color: TILE_BLUE, flexShrink: 0 }} />
                 </button>
               </div>
 
-              <div style={{ marginBottom: 16, textAlign: "center", color: "#94a3b8", fontSize: 11, lineHeight: 1.5 }}>
+              <div style={{ marginBottom: 16, textAlign: "center", color: "var(--text-subtle)", fontSize: 11, lineHeight: 1.5 }}>
                 Prepared by Amref Health Africa™ in Ethiopia<br />in partnership with the Federal Ministry of Health™, Ethiopia
               </div>
             </>
@@ -1977,35 +2022,35 @@ export default function ImmunizationChatBot() {
             <>
               <div style={{ marginBottom: 8 }}><button onClick={() => setScreen("home")} style={{ background: "transparent", border: "none", padding: 0, display: "flex", gap: 6, alignItems: "center" }}><ArrowLeft size={16} /> Back</button></div>
               <h3>General Information</h3>
-              <p style={{ color: "#64748b", marginTop: -6, marginBottom: 12, fontSize: 13 }}>Minimum requirements and key facts that apply across the whole app, in one place.</p>
+              <p style={{ color: "var(--text-muted)", marginTop: -6, marginBottom: 12, fontSize: 13 }}>Minimum requirements and key facts that apply across the whole app, in one place.</p>
               <div style={{ display: "grid", gap: 10 }}>
                 <Card>
                   <div style={{ fontWeight: 800 }}>Cold chain temperature range</div>
-                  <div style={{ color: "#64748b", marginTop: 6, fontSize: 13 }}>All routine vaccines: <b>+2°C to +8°C</b>. Record fridge temperature twice daily. Never freeze freeze-sensitive vaccines.</div>
-                  <div style={{ fontSize: 11, color: "#94a3b8", marginTop: 6 }}>IIP Ch 2.6</div>
+                  <div style={{ color: "var(--text-muted)", marginTop: 6, fontSize: 13 }}>All routine vaccines: <b>+2°C to +8°C</b>. Record fridge temperature twice daily. Never freeze freeze-sensitive vaccines.</div>
+                  <div style={{ fontSize: 11, color: "var(--text-subtle)", marginTop: 6 }}>IIP Ch 2.6</div>
                 </Card>
                 <Card>
                   <div style={{ fontWeight: 800 }}>Buffer / safety stock</div>
-                  <div style={{ color: "#64748b", marginTop: 6, fontSize: 13 }}>Keep a safety stock of <b>25%</b> of the supply-period need at the facility at all times.</div>
-                  <div style={{ fontSize: 11, color: "#94a3b8", marginTop: 6 }}>IIP Ch 2.3.1</div>
+                  <div style={{ color: "var(--text-muted)", marginTop: 6, fontSize: 13 }}>Keep a safety stock of <b>25%</b> of the supply-period need at the facility at all times.</div>
+                  <div style={{ fontSize: 11, color: "var(--text-subtle)", marginTop: 6 }}>IIP Ch 2.3.1</div>
                 </Card>
                 <Card>
                   <div style={{ fontWeight: 800 }}>Injection safety essentials</div>
-                  <div style={{ color: "#64748b", marginTop: 6, fontSize: 13 }}>New AD syringe per injection, never recap, sharps go straight into a safety box, close the box at ¾ full.</div>
-                  <div style={{ fontSize: 11, color: "#94a3b8", marginTop: 6 }}>IIP Ch 5</div>
+                  <div style={{ color: "var(--text-muted)", marginTop: 6, fontSize: 13 }}>New AD syringe per injection, never recap, sharps go straight into a safety box, close the box at ¾ full.</div>
+                  <div style={{ fontSize: 11, color: "var(--text-subtle)", marginTop: 6 }}>IIP Ch 5</div>
                 </Card>
                 <Card>
                   <div style={{ fontWeight: 800 }}>Data quality minimum</div>
-                  <div style={{ color: "#64748b", marginTop: 6, fontSize: 13 }}>Record every dose the same day, reconcile tally/register/ledger daily, and physically verify stock at least monthly.</div>
-                  <div style={{ fontSize: 11, color: "#94a3b8", marginTop: 6 }}>IIP Ch 8.2 / 8.3</div>
+                  <div style={{ color: "var(--text-muted)", marginTop: 6, fontSize: 13 }}>Record every dose the same day, reconcile tally/register/ledger daily, and physically verify stock at least monthly.</div>
+                  <div style={{ fontSize: 11, color: "var(--text-subtle)", marginTop: 6 }}>IIP Ch 8.2 / 8.3</div>
                 </Card>
                 <Card>
                   <div style={{ fontWeight: 800 }}>Who this app is for</div>
-                  <div style={{ color: "#64748b", marginTop: 6, fontSize: 13 }}>Health Care Workers (primary), plus Content, Language, System Administrators and Analysts with role-based access. Answers are grounded only in the approved IIP Manual and cite their source chapter.</div>
+                  <div style={{ color: "var(--text-muted)", marginTop: 6, fontSize: 13 }}>Health Care Workers (primary), plus Content, Language, System Administrators and Analysts with role-based access. Answers are grounded only in the approved IIP Manual and cite their source chapter.</div>
                 </Card>
                 <Card>
                   <div style={{ fontWeight: 800 }}>Need a person, not the chatbot?</div>
-                  <div style={{ color: "#64748b", marginTop: 6, fontSize: 13 }}>Any chat answer can be escalated to a human focal point in one tap — from the chatbot, tap "Escalate to human focal point".</div>
+                  <div style={{ color: "var(--text-muted)", marginTop: 6, fontSize: 13 }}>Any chat answer can be escalated to a human focal point in one tap — from the chatbot, tap "Escalate to human focal point".</div>
                 </Card>
               </div>
             </>
@@ -2016,7 +2061,7 @@ export default function ImmunizationChatBot() {
             <>
               <div style={{ marginBottom: 8 }}><button onClick={() => setScreen("home")} style={{ background: "transparent", border: "none", padding: 0, display: "flex", gap: 6, alignItems: "center" }}><ArrowLeft size={16} /> Back</button></div>
               <h3>Notifications</h3>
-              <p style={{ color: "#64748b", marginTop: -6, marginBottom: 12, fontSize: 13 }}>Reminders about vaccine doses due, defaulters, and daily tasks for your facility. (Sample data for this prototype.)</p>
+              <p style={{ color: "var(--text-muted)", marginTop: -6, marginBottom: 12, fontSize: 13 }}>Reminders about vaccine doses due, defaulters, and daily tasks for your facility. (Sample data for this prototype.)</p>
               <div style={{ display: "grid", gap: 10 }}>
                 {notifications.map(n => (
                   <Card key={n.id}>
@@ -2024,7 +2069,7 @@ export default function ImmunizationChatBot() {
                       <div style={{ fontWeight: 800, fontSize: 13 }}>{n.title}</div>
                       <div style={{ fontSize: 10.5, fontWeight: 700, color: n.when === "Overdue" ? "#ef4444" : TILE_BLUE, flexShrink: 0 }}>{n.when}</div>
                     </div>
-                    <div style={{ color: "#64748b", marginTop: 6, fontSize: 12.5 }}>{n.detail}</div>
+                    <div style={{ color: "var(--text-muted)", marginTop: 6, fontSize: 12.5 }}>{n.detail}</div>
                   </Card>
                 ))}
               </div>
@@ -2036,11 +2081,11 @@ export default function ImmunizationChatBot() {
             <>
               <div style={{ marginBottom: 8 }}><button onClick={() => setScreen("home")} style={{ background: "transparent", border: "none", padding: 0, display: "flex", gap: 6, alignItems: "center" }}><ArrowLeft size={16} /> Back</button></div>
               <h3>Vaccine Forecasting</h3>
-              <p style={{ color: "#64748b", marginTop: -6, marginBottom: 12, fontSize: 13 }}>Estimate vaccine and supply needs for your facility — by target population, coverage, and buffer stock. (IIP Ch 2.2)</p>
+              <p style={{ color: "var(--text-muted)", marginTop: -6, marginBottom: 12, fontSize: 13 }}>Estimate vaccine and supply needs for your facility — by target population, coverage, and buffer stock. (IIP Ch 2.2)</p>
               <div style={{ display: "flex", gap: 8, marginBottom: 12 }}>
-                <button onClick={() => setForecastView("single")} style={{ flex: 1, padding: 10, borderRadius: 10, background: forecastView === "single" ? TILE_BLUE : "#F1F5F9", color: forecastView === "single" ? "#fff" : "#334155", fontWeight: 700, fontSize: 12, border: "none" }}>Single vaccine</button>
-                <button onClick={() => setForecastView("table")} style={{ flex: 1, padding: 10, borderRadius: 10, background: forecastView === "table" ? TILE_BLUE : "#F1F5F9", color: forecastView === "table" ? "#fff" : "#334155", fontWeight: 700, fontSize: 12, border: "none" }}>All vaccines (facility table)</button>
-                <button onClick={() => setForecastView("manage")} style={{ flex: 1, padding: 10, borderRadius: 10, background: forecastView === "manage" ? TILE_BLUE : "#F1F5F9", color: forecastView === "manage" ? "#fff" : "#334155", fontWeight: 700, fontSize: 12, border: "none" }}>Saved forecasts</button>
+                <button onClick={() => setForecastView("single")} style={{ flex: 1, padding: 10, borderRadius: 10, background: forecastView === "single" ? TILE_BLUE : "var(--surface-alt)", color: forecastView === "single" ? "#fff" : "var(--text)", fontWeight: 700, fontSize: 12, border: "none" }}>Single vaccine</button>
+                <button onClick={() => setForecastView("table")} style={{ flex: 1, padding: 10, borderRadius: 10, background: forecastView === "table" ? TILE_BLUE : "var(--surface-alt)", color: forecastView === "table" ? "#fff" : "var(--text)", fontWeight: 700, fontSize: 12, border: "none" }}>All vaccines (facility table)</button>
+                <button onClick={() => setForecastView("manage")} style={{ flex: 1, padding: 10, borderRadius: 10, background: forecastView === "manage" ? TILE_BLUE : "var(--surface-alt)", color: forecastView === "manage" ? "#fff" : "var(--text)", fontWeight: 700, fontSize: 12, border: "none" }}>Saved forecasts</button>
               </div>
               {forecastView === "single" && (
                 <ForecastingCalculator onComplete={markCompleted} completed={progress.completedModules.includes("forecast_module")} />
@@ -2066,7 +2111,7 @@ export default function ImmunizationChatBot() {
             <>
               <div style={{ marginBottom: 8 }}><button onClick={() => { setScreen("home"); setStockView(null); }} style={{ background: "transparent", border: "none", padding: 0, display: "flex", gap: 6, alignItems: "center" }}><ArrowLeft size={16} /> Back</button></div>
               <h3>Stock Management</h3>
-              <p style={{ color: "#64748b", marginTop: -6, marginBottom: 12, fontSize: 13 }}>Check stock levels, order and receive supplies, record in the ledger book, and monitor wastage. (IIP Ch 2.3–2.4)</p>
+              <p style={{ color: "var(--text-muted)", marginTop: -6, marginBottom: 12, fontSize: 13 }}>Check stock levels, order and receive supplies, record in the ledger book, and monitor wastage. (IIP Ch 2.3–2.4)</p>
 
               {stockView === null && (
                 <ModuleSubMenu
@@ -2095,8 +2140,8 @@ export default function ImmunizationChatBot() {
                   <ModuleSubHeader title="Stock Management" onBack={() => setStockView(null)} />
                   <Card>
                     <div style={{ fontWeight: 800 }}>Ordering / requesting supplies (VRF)</div>
-                    <div style={{ color: "#64748b", marginTop: 6, fontSize: 13 }}>Place an order as soon as any vaccine reaches its re-order level, covering all vaccines in one Vaccine Requisition Form (VRF) — not just the ones that triggered the order. Always confirm bundled consumables (diluent, AD syringe, safety box) and cold chain capacity before ordering.</div>
-                    <div style={{ fontSize: 11, color: "#94a3b8", marginTop: 6 }}>IIP Ch 2.3.2</div>
+                    <div style={{ color: "var(--text-muted)", marginTop: 6, fontSize: 13 }}>Place an order as soon as any vaccine reaches its re-order level, covering all vaccines in one Vaccine Requisition Form (VRF) — not just the ones that triggered the order. Always confirm bundled consumables (diluent, AD syringe, safety box) and cold chain capacity before ordering.</div>
+                    <div style={{ fontSize: 11, color: "var(--text-subtle)", marginTop: 6 }}>IIP Ch 2.3.2</div>
                   </Card>
                 </>
               )}
@@ -2106,8 +2151,8 @@ export default function ImmunizationChatBot() {
                   <ModuleSubHeader title="Stock Management" onBack={() => setStockView(null)} />
                   <Card>
                     <div style={{ fontWeight: 800 }}>Receiving vaccines & supplies</div>
-                    <div style={{ color: "#64748b", marginTop: 6, fontSize: 13 }}>On receipt: check quantity against the order, expiry date & VVM stage, fridge tag/temperature during transport, and bundling — then store immediately and update Model 19 / the EPI ledger book.</div>
-                    <div style={{ fontSize: 11, color: "#94a3b8", marginTop: 6 }}>IIP Ch 2.3.3</div>
+                    <div style={{ color: "var(--text-muted)", marginTop: 6, fontSize: 13 }}>On receipt: check quantity against the order, expiry date & VVM stage, fridge tag/temperature during transport, and bundling — then store immediately and update Model 19 / the EPI ledger book.</div>
+                    <div style={{ fontSize: 11, color: "var(--text-subtle)", marginTop: 6 }}>IIP Ch 2.3.3</div>
                     <button onClick={() => setStockView("ledger")} style={{ marginTop: 8, background: "transparent", border: "none", padding: 0, color: TILE_BLUE, fontWeight: 700, fontSize: 12, cursor: "pointer" }}>How do I update the ledger book? Read more →</button>
                   </Card>
                 </>
@@ -2118,13 +2163,13 @@ export default function ImmunizationChatBot() {
                   <ModuleSubHeader title="Stock Management" onBack={() => setStockView(null)} />
                   <Card>
                     <div style={{ fontWeight: 800 }}>Ledger (bin) book recording</div>
-                    <div style={{ color: "#64748b", marginTop: 6, fontSize: 13 }}>Record every receipt/issue: purpose, batch number, expiry date, VVM status, quantity, presentation, manufacturer, min/max stock, discarded and returned amounts. Physically verify stock at least monthly — never include expired/heat-damaged/discard-point VVM vials in the available balance.</div>
-                    <div style={{ fontSize: 11, color: "#94a3b8", marginTop: 6 }}>IIP Ch 2.3.4</div>
+                    <div style={{ color: "var(--text-muted)", marginTop: 6, fontSize: 13 }}>Record every receipt/issue: purpose, batch number, expiry date, VVM status, quantity, presentation, manufacturer, min/max stock, discarded and returned amounts. Physically verify stock at least monthly — never include expired/heat-damaged/discard-point VVM vials in the available balance.</div>
+                    <div style={{ fontSize: 11, color: "var(--text-subtle)", marginTop: 6 }}>IIP Ch 2.3.4</div>
                     <button onClick={() => setLedgerReadMore(v => !v)} style={{ marginTop: 8, background: "transparent", border: "none", padding: 0, color: TILE_BLUE, fontWeight: 700, fontSize: 12, cursor: "pointer" }}>{ledgerReadMore ? "Show less ▲" : "Read more — full ledger book guide →"}</button>
                     {ledgerReadMore && (
-                      <div style={{ marginTop: 10, padding: 10, borderRadius: 10, background: "#F8FAFC", fontSize: 12.5, color: "#334155", whiteSpace: "pre-line", lineHeight: 1.6 }}>
+                      <div style={{ marginTop: 10, padding: 10, borderRadius: 10, background: "var(--surface-alt2)", fontSize: 12.5, color: "var(--text)", whiteSpace: "pre-line", lineHeight: 1.6 }}>
                         {JOB_AIDS.find(j => j.id === "ja-ledger")?.content}
-                        <div style={{ marginTop: 10, paddingTop: 10, borderTop: "1px solid #E6EDF3" }}>
+                        <div style={{ marginTop: 10, paddingTop: 10, borderTop: "1px solid var(--border)" }}>
                           <div style={{ fontWeight: 800, marginBottom: 4 }}>Related: Improving data quality</div>
                           <div>{JOB_AIDS.find(j => j.id === "ja-dataquality")?.content}</div>
                         </div>
@@ -2156,8 +2201,8 @@ export default function ImmunizationChatBot() {
                   <ModuleSubHeader title="Stock Management" onBack={() => setStockView(null)} />
                   <Card>
                     <div style={{ fontWeight: 800 }}>Improving data quality</div>
-                    <div style={{ color: "#64748b", marginTop: 6, fontSize: 13, whiteSpace: "pre-line", lineHeight: 1.6 }}>{JOB_AIDS.find(j => j.id === "ja-dataquality")?.content}</div>
-                    <div style={{ fontSize: 11, color: "#94a3b8", marginTop: 6 }}>IIP Ch 8.2 / 8.3</div>
+                    <div style={{ color: "var(--text-muted)", marginTop: 6, fontSize: 13, whiteSpace: "pre-line", lineHeight: 1.6 }}>{JOB_AIDS.find(j => j.id === "ja-dataquality")?.content}</div>
+                    <div style={{ fontSize: 11, color: "var(--text-subtle)", marginTop: 6 }}>IIP Ch 8.2 / 8.3</div>
                   </Card>
                 </>
               )}
@@ -2169,7 +2214,7 @@ export default function ImmunizationChatBot() {
             <>
               <div style={{ marginBottom: 8 }}><button onClick={() => { setScreen("home"); setColdChainView(null); }} style={{ background: "transparent", border: "none", padding: 0, display: "flex", gap: 6, alignItems: "center" }}><ArrowLeft size={16} /> Back</button></div>
               <h3>Cold Chain</h3>
-              <p style={{ color: "#64748b", marginTop: -6, marginBottom: 12, fontSize: 13 }}>Storage temperature, equipment, monitoring devices, the Shake Test, maintenance, and contingency planning. (IIP Ch 2.5–2.7)</p>
+              <p style={{ color: "var(--text-muted)", marginTop: -6, marginBottom: 12, fontSize: 13 }}>Storage temperature, equipment, monitoring devices, the Shake Test, maintenance, and contingency planning. (IIP Ch 2.5–2.7)</p>
 
               {coldChainView === null && (
                 <ModuleSubMenu
@@ -2193,7 +2238,7 @@ export default function ImmunizationChatBot() {
                   <ModuleSubHeader title="Cold Chain" onBack={() => setColdChainView(null)} />
                   <Card>
                     <div style={{ fontWeight: 800 }}>Storage temperature</div>
-                    <div style={{ color: "#64748b", marginTop: 6, fontSize: 14 }}>Routine vaccines: <b>+2°C to +8°C</b>. Never freeze freeze-sensitive vaccines (IPV, Penta, PCV-13, HepB, Td). Record fridge temperature twice daily. (IIP Ch 2.6.1/2.6.3)</div>
+                    <div style={{ color: "var(--text-muted)", marginTop: 6, fontSize: 14 }}>Routine vaccines: <b>+2°C to +8°C</b>. Never freeze freeze-sensitive vaccines (IPV, Penta, PCV-13, HepB, Td). Record fridge temperature twice daily. (IIP Ch 2.6.1/2.6.3)</div>
                   </Card>
                 </>
               )}
@@ -2201,18 +2246,18 @@ export default function ImmunizationChatBot() {
               {coldChainView === "vaccineref" && (
                 <>
                   <ModuleSubHeader title="Cold Chain" onBack={() => setColdChainView(null)} />
-                  <div style={{ color: "#64748b", fontSize: 12, marginBottom: 10 }}>Storage temperature, freeze/heat sensitivity, dose, route and schedule age for each routine vaccine.</div>
+                  <div style={{ color: "var(--text-muted)", fontSize: 12, marginBottom: 10 }}>Storage temperature, freeze/heat sensitivity, dose, route and schedule age for each routine vaccine.</div>
                   <div style={{ display: "grid", gap: 10 }}>
                     {VACCINE_REFERENCE.map((v, i) => (
                       <Card key={i}>
                         <div style={{ fontWeight: 800, marginBottom: 6 }}>{v.name}</div>
                         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 6, fontSize: 12 }}>
-                          <div><div style={{ color: "#94a3b8" }}>Storage</div><div style={{ fontWeight: 700 }}>{v.storage}</div></div>
-                          <div><div style={{ color: "#94a3b8" }}>Dose</div><div style={{ fontWeight: 700 }}>{v.dose}</div></div>
-                          <div><div style={{ color: "#94a3b8" }}>Route</div><div style={{ fontWeight: 700 }}>{v.route}</div></div>
-                          <div><div style={{ color: "#94a3b8" }}>Schedule</div><div style={{ fontWeight: 700 }}>{v.schedule}</div></div>
+                          <div><div style={{ color: "var(--text-subtle)" }}>Storage</div><div style={{ fontWeight: 700 }}>{v.storage}</div></div>
+                          <div><div style={{ color: "var(--text-subtle)" }}>Dose</div><div style={{ fontWeight: 700 }}>{v.dose}</div></div>
+                          <div><div style={{ color: "var(--text-subtle)" }}>Route</div><div style={{ fontWeight: 700 }}>{v.route}</div></div>
+                          <div><div style={{ color: "var(--text-subtle)" }}>Schedule</div><div style={{ fontWeight: 700 }}>{v.schedule}</div></div>
                         </div>
-                        <div style={{ marginTop: 8, color: "#64748b", fontSize: 12 }}>{v.sensitivity}</div>
+                        <div style={{ marginTop: 8, color: "var(--text-muted)", fontSize: 12 }}>{v.sensitivity}</div>
                       </Card>
                     ))}
                   </div>
@@ -2224,11 +2269,11 @@ export default function ImmunizationChatBot() {
                   <ModuleSubHeader title="Cold Chain" onBack={() => setColdChainView(null)} />
                   <Card>
                     <div style={{ fontWeight: 800 }}>Cold chain equipment types</div>
-                    <div style={{ color: "#64748b", marginTop: 6, fontSize: 13 }}>
+                    <div style={{ color: "var(--text-muted)", marginTop: 6, fontSize: 13 }}>
                       <b>Slow cold chain</b> (needs power): electric/compression, solar (battery or solar-direct-drive), and kerosene refrigerators. Domestic refrigerators are NOT recommended for vaccines.<br /><br />
                       <b>Fast cold chain</b> (passive containers): cold boxes (5-25L, 48-96hr cool life), vaccine carriers (0.8-3.4L, transport/outreach use), and long-term passive storage devices (holds temperature for a month or more, no electricity needed).
                     </div>
-                    <div style={{ fontSize: 11, color: "#94a3b8", marginTop: 6 }}>IIP Ch 2.5.2</div>
+                    <div style={{ fontSize: 11, color: "var(--text-subtle)", marginTop: 6 }}>IIP Ch 2.5.2</div>
                   </Card>
                 </>
               )}
@@ -2238,13 +2283,13 @@ export default function ImmunizationChatBot() {
                   <ModuleSubHeader title="Cold Chain" onBack={() => setColdChainView(null)} />
                   <Card>
                     <div style={{ fontWeight: 800 }}>Temperature monitoring devices</div>
-                    <div style={{ color: "#64748b", marginTop: 6, fontSize: 13 }}>
+                    <div style={{ color: "var(--text-muted)", marginTop: 6, fontSize: 13 }}>
                       <b>30-DTR / Fridge tag</b>: logs temperature every ≤10 min for 30 days; freeze alarm below -0.5°C for 60+ min, heat alarm above +8°C for 10+ hrs.<br />
                       <b>RTMD</b>: remote/USB-downloadable logger for fridges & cold rooms.<br />
                       <b>Thermometers (stem/dial)</b>: instantaneous reading only — backup device, no battery needed.<br />
                       <b>VVM</b>: the only monitor that travels with the vaccine through the whole supply chain (does not detect freezing).
                     </div>
-                    <div style={{ fontSize: 11, color: "#94a3b8", marginTop: 6 }}>IIP Ch 2.6.2</div>
+                    <div style={{ fontSize: 11, color: "var(--text-subtle)", marginTop: 6 }}>IIP Ch 2.6.2</div>
                   </Card>
                 </>
               )}
@@ -2283,11 +2328,11 @@ export default function ImmunizationChatBot() {
                   <ModuleSubHeader title="Cold Chain" onBack={() => setColdChainView(null)} />
                   <Card>
                     <div style={{ fontWeight: 800 }}>Defrosting & preventive maintenance</div>
-                    <div style={{ color: "#64748b", marginTop: 6, fontSize: 13 }}>
+                    <div style={{ color: "var(--text-muted)", marginTop: 6, fontSize: 13 }}>
                       Defrost refrigerators at least every month, or when ice is thicker than 0.5cm: move vaccines to another cold chain device, switch off/extinguish power, let ice melt (never use a knife/ice pick), then clean and restart. Solar units: defrost only on a sunny day, ideally early morning.
                       Preventive maintenance (daily/weekly/monthly/annual checks per equipment type) should be scheduled before failures occur — corrective maintenance should be minimal if preventive maintenance is effective.
                     </div>
-                    <div style={{ fontSize: 11, color: "#94a3b8", marginTop: 6 }}>IIP Ch 2.7.1/2.7.2</div>
+                    <div style={{ fontSize: 11, color: "var(--text-subtle)", marginTop: 6 }}>IIP Ch 2.7.1/2.7.2</div>
                   </Card>
                 </>
               )}
@@ -2297,10 +2342,10 @@ export default function ImmunizationChatBot() {
                   <ModuleSubHeader title="Cold Chain" onBack={() => setColdChainView(null)} />
                   <Card>
                     <div style={{ fontWeight: 800 }}>Cold chain contingency plan</div>
-                    <div style={{ color: "#64748b", marginTop: 6, fontSize: 13 }}>
+                    <div style={{ color: "var(--text-muted)", marginTop: 6, fontSize: 13 }}>
                       Every facility should have a written, rehearsed contingency plan covering refrigerator breakdown, power/fuel loss, and store destruction — listing alternate storage locations, emergency contacts, and initial/follow-up actions. Review the plan at least once a year.
                     </div>
-                    <div style={{ fontSize: 11, color: "#94a3b8", marginTop: 6 }}>IIP Ch 2.7.3</div>
+                    <div style={{ fontSize: 11, color: "var(--text-subtle)", marginTop: 6 }}>IIP Ch 2.7.3</div>
                     <div style={{ marginTop: 10 }}><button onClick={() => markCompleted("coldchain_module")} style={{ padding: 10, borderRadius: 10, background: TILE_BLUE, color: "#fff", border: "none" }}>Mark as complete</button></div>
                   </Card>
                 </>
@@ -2313,7 +2358,7 @@ export default function ImmunizationChatBot() {
             <>
               <div style={{ marginBottom: 8 }}><button onClick={() => { setScreen("home"); setSessionView(null); }} style={{ background: "transparent", border: "none", padding: 0, display: "flex", gap: 6, alignItems: "center" }}><ArrowLeft size={16} /> Back</button></div>
               <h3>Session Planning</h3>
-              <p style={{ color: "#64748b", marginTop: -6, marginBottom: 12, fontSize: 13 }}>Build your micro-plan and session plan, prepare each session, and track defaulters. (IIP Ch 4 &amp; Ch 6.2)</p>
+              <p style={{ color: "var(--text-muted)", marginTop: -6, marginBottom: 12, fontSize: 13 }}>Build your micro-plan and session plan, prepare each session, and track defaulters. (IIP Ch 4 &amp; Ch 6.2)</p>
 
               {sessionView === null && (
                 <ModuleSubMenu
@@ -2334,8 +2379,8 @@ export default function ImmunizationChatBot() {
                   <ModuleSubHeader title="Session Planning" onBack={() => setSessionView(null)} />
                   <Card>
                     <div style={{ fontWeight: 800 }}>Micro-plan</div>
-                    <div style={{ color: "#64748b", marginTop: 6, fontSize: 13 }}>Built from catchment-area mapping and target setting, problem analysis and prioritization, analysis of PHCU immunization data, identifying barriers to access/utilization, and a costed work plan to reach every community.</div>
-                    <div style={{ fontSize: 11, color: "#94a3b8", marginTop: 6 }}>IIP Ch 4.2</div>
+                    <div style={{ color: "var(--text-muted)", marginTop: 6, fontSize: 13 }}>Built from catchment-area mapping and target setting, problem analysis and prioritization, analysis of PHCU immunization data, identifying barriers to access/utilization, and a costed work plan to reach every community.</div>
+                    <div style={{ fontSize: 11, color: "var(--text-subtle)", marginTop: 6 }}>IIP Ch 4.2</div>
                   </Card>
                 </>
               )}
@@ -2345,8 +2390,8 @@ export default function ImmunizationChatBot() {
                   <ModuleSubHeader title="Session Planning" onBack={() => setSessionView(null)} />
                   <Card>
                     <div style={{ fontWeight: 800 }}>Session plan</div>
-                    <div style={{ color: "#64748b", marginTop: 6, fontSize: 13 }}>Lists all communities served by the facility and specifies how and when each will be reached, prepared for a defined period, so every community in the catchment is covered.</div>
-                    <div style={{ fontSize: 11, color: "#94a3b8", marginTop: 6 }}>IIP Ch 4.3 / 6.2.1</div>
+                    <div style={{ color: "var(--text-muted)", marginTop: 6, fontSize: 13 }}>Lists all communities served by the facility and specifies how and when each will be reached, prepared for a defined period, so every community in the catchment is covered.</div>
+                    <div style={{ fontSize: 11, color: "var(--text-subtle)", marginTop: 6 }}>IIP Ch 4.3 / 6.2.1</div>
                   </Card>
                 </>
               )}
@@ -2366,8 +2411,8 @@ export default function ImmunizationChatBot() {
                   <ModuleSubHeader title="Session Planning" onBack={() => setSessionView(null)} />
                   <Card>
                     <div style={{ fontWeight: 800 }}>Preparing the session site & supplies</div>
-                    <div style={{ color: "#64748b", marginTop: 6, fontSize: 13 }}>Before a session: plan it, prepare the site, and prepare vaccines/injection supplies — vaccines and diluents in a vaccine carrier with conditioned ice packs, AD syringes, mixing syringes, safety box, registers, tally sheets and supplementary materials.</div>
-                    <div style={{ fontSize: 11, color: "#94a3b8", marginTop: 6 }}>IIP Ch 6.2</div>
+                    <div style={{ color: "var(--text-muted)", marginTop: 6, fontSize: 13 }}>Before a session: plan it, prepare the site, and prepare vaccines/injection supplies — vaccines and diluents in a vaccine carrier with conditioned ice packs, AD syringes, mixing syringes, safety box, registers, tally sheets and supplementary materials.</div>
+                    <div style={{ fontSize: 11, color: "var(--text-subtle)", marginTop: 6 }}>IIP Ch 6.2</div>
                   </Card>
                 </>
               )}
@@ -2377,8 +2422,8 @@ export default function ImmunizationChatBot() {
                   <ModuleSubHeader title="Session Planning" onBack={() => setSessionView(null)} />
                   <Card>
                     <div style={{ fontWeight: 800 }}>Defaulter tracking</div>
-                    <div style={{ color: "#64748b", marginTop: 6, fontSize: 13 }}>Identifies children who missed a scheduled dose so they can be followed up. Micro-planning prioritizes areas with the highest number of zero-dose and under-immunized (defaulter) children.</div>
-                    <div style={{ fontSize: 11, color: "#94a3b8", marginTop: 6 }}>IIP Ch 4.2 / 4.3</div>
+                    <div style={{ color: "var(--text-muted)", marginTop: 6, fontSize: 13 }}>Identifies children who missed a scheduled dose so they can be followed up. Micro-planning prioritizes areas with the highest number of zero-dose and under-immunized (defaulter) children.</div>
+                    <div style={{ fontSize: 11, color: "var(--text-subtle)", marginTop: 6 }}>IIP Ch 4.2 / 4.3</div>
                     <div style={{ marginTop: 10 }}><button onClick={() => markCompleted("session_module")} style={{ padding: 12, borderRadius: 10, background: TILE_BLUE, color: "#fff", border: "none" }}>Mark as complete</button></div>
                   </Card>
                   <div style={{ marginTop: 16 }}>
@@ -2409,12 +2454,12 @@ export default function ImmunizationChatBot() {
             <>
               <div style={{ marginBottom: 8 }}><button onClick={() => setScreen("home")} style={{ background: "transparent", border: "none", padding: 0, display: "flex", gap: 6, alignItems: "center" }}><ArrowLeft size={16} /> Back</button></div>
               <h3>Job Aids</h3>
-              <p style={{ color: "#64748b", marginTop: -6, marginBottom: 12, fontSize: 13 }}>Step-by-step quick references you can download and use offline in the field.</p>
+              <p style={{ color: "var(--text-muted)", marginTop: -6, marginBottom: 12, fontSize: 13 }}>Step-by-step quick references you can download and use offline in the field.</p>
               <div style={{ display: "grid", gap: 10 }}>
                 {JOB_AIDS.map(a => (
                   <Card key={a.id}>
                     <div style={{ fontWeight: 800 }}>{a.title}</div>
-                    <div style={{ color: "#64748b", marginTop: 6, fontSize: 12 }}>{a.source}</div>
+                    <div style={{ color: "var(--text-muted)", marginTop: 6, fontSize: 12 }}>{a.source}</div>
                     <div style={{ marginTop: 10 }}>
                       <button onClick={() => downloadJobAid(a)} style={{ padding: 10, borderRadius: 10, background: TILE_BLUE, color: "#fff", display: "flex", gap: 6, alignItems: "center" }}><Download size={14} />Download</button>
                     </div>
@@ -2429,7 +2474,7 @@ export default function ImmunizationChatBot() {
             <>
               <div style={{ marginBottom: 8 }}><button onClick={() => { setScreen("home"); setFaqView(null); }} style={{ background: "transparent", border: "none", padding: 0, display: "flex", gap: 6, alignItems: "center" }}><ArrowLeft size={16} /> Back</button></div>
               <h3>Operational FAQs</h3>
-              <p style={{ color: "#64748b", marginTop: -6, marginBottom: 12, fontSize: 13 }}>Quick answers on vaccines &amp; schedule, injection safety, service delivery, AEFI surveillance, and reporting. (IIP Ch 1, 5, 6, 7, 8)</p>
+              <p style={{ color: "var(--text-muted)", marginTop: -6, marginBottom: 12, fontSize: 13 }}>Quick answers on vaccines &amp; schedule, injection safety, service delivery, AEFI surveillance, and reporting. (IIP Ch 1, 5, 6, 7, 8)</p>
 
               {faqView === null && (
                 <ModuleSubMenu
@@ -2450,11 +2495,11 @@ export default function ImmunizationChatBot() {
                         <EligibilityCalculator onComplete={markCompleted} completed={progress.completedModules.includes("eligibility_module")} />
                         <Card style={{ marginTop: 10 }}>
                           <div style={{ fontWeight: 800 }}>When are common vaccines given?</div>
-                          <div style={{ color: "#64748b", marginTop: 6, fontSize: 13 }}>A short summary of the routine schedule — how many days/weeks/months after birth each vaccine is due, and the minimum interval between doses.</div>
-                          <div style={{ fontSize: 11, color: "#94a3b8", marginTop: 6 }}>IIP Ch 1.2.1</div>
+                          <div style={{ color: "var(--text-muted)", marginTop: 6, fontSize: 13 }}>A short summary of the routine schedule — how many days/weeks/months after birth each vaccine is due, and the minimum interval between doses.</div>
+                          <div style={{ fontSize: 11, color: "var(--text-subtle)", marginTop: 6 }}>IIP Ch 1.2.1</div>
                           <button onClick={() => setServiceReadMore(v => !v)} style={{ marginTop: 8, background: "transparent", border: "none", padding: 0, color: TILE_BLUE, fontWeight: 700, fontSize: 12, cursor: "pointer" }}>{serviceReadMore ? "Show less ▲" : "Read more — routine immunization schedule →"}</button>
                           {serviceReadMore && (
-                            <div style={{ marginTop: 10, padding: 10, borderRadius: 10, background: "#F8FAFC", fontSize: 12.5, color: "#334155", whiteSpace: "pre-line", lineHeight: 1.6 }}>
+                            <div style={{ marginTop: 10, padding: 10, borderRadius: 10, background: "var(--surface-alt2)", fontSize: 12.5, color: "var(--text)", whiteSpace: "pre-line", lineHeight: 1.6 }}>
                               {JOB_AIDS.find(j => j.id === "ja-schedule")?.content}
                             </div>
                           )}
@@ -2462,7 +2507,7 @@ export default function ImmunizationChatBot() {
                       </div>
                     )}
                     <div style={{ display: "grid", gap: 8 }}>
-                      {items.map((f, i) => <Card key={i}><div style={{ fontWeight: 800 }}>{f.q}</div><div style={{ color: "#64748b", marginTop: 6 }}>{f.a}</div><div style={{ color: "#94a3b8", fontSize: 11, marginTop: 4 }}>{f.source}</div></Card>)}
+                      {items.map((f, i) => <Card key={i}><div style={{ fontWeight: 800 }}>{f.q}</div><div style={{ color: "var(--text-muted)", marginTop: 6 }}>{f.a}</div><div style={{ color: "var(--text-subtle)", fontSize: 11, marginTop: 4 }}>{f.source}</div></Card>)}
                     </div>
                     {faqView === "reporting" && (
                       <div style={{ marginTop: 10 }}><button onClick={() => markCompleted("faq_module")} style={{ padding: 10, borderRadius: 10, background: TILE_BLUE, color: "#fff", border: "none" }}>Mark as complete</button></div>
@@ -2527,7 +2572,7 @@ export default function ImmunizationChatBot() {
             return (
               <div style={{ display: "grid", gap: 12 }}>
                 <h3 style={{ margin: 0 }}>Learn</h3>
-                <div style={{ color: "#64748b", fontSize: 13 }}>
+                <div style={{ color: "var(--text-muted)", fontSize: 13 }}>
                   Content Library — five learning domains mapped to the Immunization in Practice (IIP) manual.
                 </div>
 
@@ -2545,14 +2590,14 @@ export default function ImmunizationChatBot() {
                                 <div style={{ fontWeight: 800, fontSize: 15 }}>{domain.label}</div>
                                 {completed && <CheckCircle size={15} style={{ color: "#10b981" }} />}
                               </div>
-                              <div style={{ fontSize: 11, color: "#94a3b8", marginTop: 3 }}>{domain.chapter}</div>
-                              <div style={{ color: "#64748b", fontSize: 13, lineHeight: 1.45, marginTop: 6 }}>{domain.desc}</div>
+                              <div style={{ fontSize: 11, color: "var(--text-subtle)", marginTop: 3 }}>{domain.chapter}</div>
+                              <div style={{ color: "var(--text-muted)", fontSize: 13, lineHeight: 1.45, marginTop: 6 }}>{domain.desc}</div>
                             </div>
-                            <ChevronRight size={18} style={{ color: "#94a3b8", flexShrink: 0 }} />
+                            <ChevronRight size={18} style={{ color: "var(--text-subtle)", flexShrink: 0 }} />
                           </div>
                         </button>
                         <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginTop: 10, paddingLeft: 54 }}>
-                          {domain.topics.map(topic => <span key={topic} style={{ padding: "5px 8px", borderRadius: 999, background: "#F1F5F9", color: "#475569", fontSize: 11 }}>{topic}</span>)}
+                          {domain.topics.map(topic => <span key={topic} style={{ padding: "5px 8px", borderRadius: 999, background: "var(--surface-alt)", color: "var(--text)", fontSize: 11 }}>{topic}</span>)}
                         </div>
                       </Card>
                     );
@@ -2561,7 +2606,7 @@ export default function ImmunizationChatBot() {
 
                 <Card>
                   <div style={{ fontWeight: 800 }}>Learning content types</div>
-                  <div style={{ display: "grid", gap: 7, marginTop: 8, fontSize: 13, color: "#475569" }}>
+                  <div style={{ display: "grid", gap: 7, marginTop: 8, fontSize: 13, color: "var(--text)" }}>
                     <div>• <b>Short modules</b> — concise, action-oriented learning adapted from the IIP manual.</div>
                     <div>• <b>Job aids</b> — step-by-step quick references for field use, including offline access.</div>
                     <div>• <b>Decision-support prompts & reminders</b> — contextual practice nudges drawn from IIP guidance.</div>
@@ -2572,7 +2617,7 @@ export default function ImmunizationChatBot() {
 
                 <Card>
                   <div style={{ fontWeight: 800 }}>Completed modules</div>
-                  {progress.completedModules.length === 0 ? <div style={{ color: "#64748b", marginTop: 6, fontSize: 13 }}>No modules completed yet.</div> :
+                  {progress.completedModules.length === 0 ? <div style={{ color: "var(--text-muted)", marginTop: 6, fontSize: 13 }}>No modules completed yet.</div> :
                     <ul style={{ marginTop: 8, paddingLeft: 18 }}>{progress.completedModules.map(m => <li key={m} style={{ fontSize: 13 }}>{m.replace(/_/g, " ")}</li>)}</ul>}
                 </Card>
 
@@ -2581,27 +2626,27 @@ export default function ImmunizationChatBot() {
                     <div style={{ fontWeight: 800 }}>Assessment scores & self-check</div>
                     <button onClick={() => setScreen("quiz_module")} style={{ padding: "6px 10px", borderRadius: 8, background: "#EAF1F8", border: "none", fontSize: 12, fontWeight: 700, color: TILE_BLUE }}>{progress.quizScore > 0 ? "Retake" : "Start"}</button>
                   </div>
-                  <div style={{ color: "#64748b", marginTop: 6, fontSize: 13 }}>
+                  <div style={{ color: "var(--text-muted)", marginTop: 6, fontSize: 13 }}>
                     {progress.quizScore > 0 ? `Latest score: ${progress.quizScore}/${QUIZ.length} (${quizPct}%)` : "No self-check attempted yet."}
                   </div>
                 </Card>
 
                 <Card>
                   <div style={{ fontWeight: 800 }}>Bookmarked answers ({bookmarks.length})</div>
-                  {bookmarks.length === 0 ? <div style={{ color: "#64748b", marginTop: 6, fontSize: 13 }}>No bookmarks yet — tap the star on a chat answer to save it here.</div> :
-                    <div style={{ marginTop: 8, display: "grid", gap: 6 }}>{bookmarks.map(b => <div key={b.id} style={{ fontSize: 13, color: "#334155" }}>• {b.q || b.a}</div>)}</div>}
+                  {bookmarks.length === 0 ? <div style={{ color: "var(--text-muted)", marginTop: 6, fontSize: 13 }}>No bookmarks yet — tap the star on a chat answer to save it here.</div> :
+                    <div style={{ marginTop: 8, display: "grid", gap: 6 }}>{bookmarks.map(b => <div key={b.id} style={{ fontSize: 13, color: "var(--text)" }}>• {b.q || b.a}</div>)}</div>}
                 </Card>
 
                 <Card>
                   <div style={{ fontWeight: 800 }}>Learning reminders</div>
                   {reminders.length === 0 ? (
-                    <div style={{ color: "#64748b", marginTop: 6, fontSize: 13 }}>All core modules completed — nice work!</div>
+                    <div style={{ color: "var(--text-muted)", marginTop: 6, fontSize: 13 }}>All core modules completed — nice work!</div>
                   ) : (
                     <div style={{ marginTop: 8, display: "grid", gap: 6 }}>
                       {reminders.map(r => (
-                        <div key={r.key} onClick={() => setScreen(r.key)} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: 10, borderRadius: 10, background: "#F1F5F9", cursor: "pointer" }}>
+                        <div key={r.key} onClick={() => setScreen(r.key)} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: 10, borderRadius: 10, background: "var(--surface-alt)", cursor: "pointer" }}>
                           <div style={{ fontSize: 13 }}>Finish <b>{r.label}</b></div>
-                          <ChevronRight size={16} style={{ color: "#94a3b8" }} />
+                          <ChevronRight size={16} style={{ color: "var(--text-subtle)" }} />
                         </div>
                       ))}
                     </div>
@@ -2626,27 +2671,27 @@ export default function ImmunizationChatBot() {
               <h3 style={{ margin: 0 }}>My Learning</h3>
               <Card>
                 <div style={{ fontWeight: 800 }}>Completed modules</div>
-                {progress.completedModules.length === 0 ? <div style={{ color: "#64748b", marginTop: 6 }}>No modules completed yet.</div> :
+                {progress.completedModules.length === 0 ? <div style={{ color: "var(--text-muted)", marginTop: 6 }}>No modules completed yet.</div> :
                   <ul style={{ marginTop: 8 }}>{progress.completedModules.map(m => <li key={m}>{m.replace(/_/g, " ")}</li>)}</ul>}
               </Card>
               <Card>
                 <div style={{ fontWeight: 800 }}>Latest assessment score</div>
-                <div style={{ color: "#64748b", marginTop: 6 }}>{progress.quizScore}/{QUIZ.length}</div>
+                <div style={{ color: "var(--text-muted)", marginTop: 6 }}>{progress.quizScore}/{QUIZ.length}</div>
               </Card>
               <Card>
                 <div style={{ fontWeight: 800 }}>Bookmarked answers ({bookmarks.length})</div>
-                {bookmarks.length === 0 ? <div style={{ color: "#64748b", marginTop: 6 }}>No bookmarks yet.</div> :
-                  <div style={{ marginTop: 8, display: "grid", gap: 6 }}>{bookmarks.map(b => <div key={b.id} style={{ fontSize: 13, color: "#334155" }}>• {b.q}</div>)}</div>}
+                {bookmarks.length === 0 ? <div style={{ color: "var(--text-muted)", marginTop: 6 }}>No bookmarks yet.</div> :
+                  <div style={{ marginTop: 8, display: "grid", gap: 6 }}>{bookmarks.map(b => <div key={b.id} style={{ fontSize: 13, color: "var(--text)" }}>• {b.q}</div>)}</div>}
               </Card>
               <Card>
                 <div style={{ fontWeight: 800 }}>Escalations to human focal point ({escalations.length})</div>
-                {escalations.length === 0 ? <div style={{ color: "#64748b", marginTop: 6 }}>No escalations yet.</div> :
+                {escalations.length === 0 ? <div style={{ color: "var(--text-muted)", marginTop: 6 }}>No escalations yet.</div> :
                   <div style={{ marginTop: 8, display: "grid", gap: 8 }}>
                     {escalations.map(e => (
-                      <div key={e.id} style={{ padding: 8, borderRadius: 8, background: "#F1F5F9", fontSize: 12 }}>
+                      <div key={e.id} style={{ padding: 8, borderRadius: 8, background: "var(--surface-alt)", fontSize: 12 }}>
                         <div style={{ fontWeight: 700 }}>{e.id} — {e.status}</div>
-                        <div style={{ color: "#64748b" }}>{e.query}</div>
-                        <div style={{ color: "#94a3b8" }}>{e.createdAt}</div>
+                        <div style={{ color: "var(--text-muted)" }}>{e.query}</div>
+                        <div style={{ color: "var(--text-subtle)" }}>{e.createdAt}</div>
                       </div>
                     ))}
                   </div>}
@@ -2655,7 +2700,7 @@ export default function ImmunizationChatBot() {
           )}
 
           {/* Profile */}
-          {screen === "profile" && <ProfileScreen user={user} language={language} setLanguage={setLanguage}
+          {screen === "profile" && <ProfileScreen user={user} language={language} setLanguage={setLanguage} theme={theme} setTheme={setTheme}
             onLogout={() => { setPhase("language"); setScreen("home"); setOtpSent(false); setOtpInput(""); setPhoneInput(""); setConsented(false); setProgress({ completedModules: [], quizScore: 0 }); }}
             onOpenOffline={() => setScreen("offline_content")} />}
 
@@ -2664,19 +2709,19 @@ export default function ImmunizationChatBot() {
             <div style={{ display: "grid", gap: 10 }}>
               <div style={{ marginBottom: 4 }}><button onClick={() => setScreen("profile")} style={{ background: "transparent", border: "none", padding: 0, display: "flex", gap: 6, alignItems: "center" }}><ArrowLeft size={16} /> Back</button></div>
               <h3 style={{ margin: 0 }}>Offline Content</h3>
-              <div style={{ color: "#64748b", fontSize: 13 }}>Download individual job aids for offline use. Downloaded material stays available even without a connection.</div>
+              <div style={{ color: "var(--text-muted)", fontSize: 13 }}>Download individual job aids for offline use. Downloaded material stays available even without a connection.</div>
               <div style={{ display: "grid", gap: 8 }}>
                 {JOB_AIDS.map(a => (
                   <Card key={a.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 10 }}>
                     <div>
                       <div style={{ fontWeight: 700, fontSize: 13 }}>{a.title}</div>
-                      <div style={{ color: "#64748b", fontSize: 12 }}>{a.source}</div>
+                      <div style={{ color: "var(--text-muted)", fontSize: 12 }}>{a.source}</div>
                     </div>
                     <button onClick={() => downloadJobAid(a)} style={{ padding: 10, borderRadius: 10, background: TILE_BLUE, color: "#fff", border: "none", display: "flex", gap: 6, alignItems: "center", fontSize: 12, whiteSpace: "nowrap" }}><Download size={14} />Download</button>
                   </Card>
                 ))}
               </div>
-              <button onClick={() => alert("All job aids above cached for offline use (demo).")} style={{ padding: 12, borderRadius: 12, background: "#F1F5F9", border: "none", color: "#334155", fontWeight: 700 }}>Download all</button>
+              <button onClick={() => alert("All job aids above cached for offline use (demo).")} style={{ padding: 12, borderRadius: 12, background: "var(--surface-alt)", border: "none", color: "var(--text)", fontWeight: 700 }}>Download all</button>
             </div>
           )}
 
@@ -2684,22 +2729,22 @@ export default function ImmunizationChatBot() {
           {screen === "chat" && (
             <div style={{ display: "grid", gap: 8 }}>
               <div style={{ marginBottom: 4, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                <div style={{ fontWeight: 700, fontSize: 13, color: "#334155" }}>{activeThread.title}</div>
+                <div style={{ fontWeight: 700, fontSize: 13, color: "var(--text)" }}>{activeThread.title}</div>
                 <div style={{ display: "flex", gap: 8 }}>
-                  <button onClick={() => setScreen("chat_history")} style={{ padding: "6px 10px", borderRadius: 10, background: "#F1F5F9", border: "none", fontSize: 12, fontWeight: 700, color: "#334155" }}>History</button>
+                  <button onClick={() => setScreen("chat_history")} style={{ padding: "6px 10px", borderRadius: 10, background: "var(--surface-alt)", border: "none", fontSize: 12, fontWeight: 700, color: "var(--text)" }}>History</button>
                   <button onClick={newChat} style={{ padding: "6px 10px", borderRadius: 10, background: "#EAF1F8", border: "none", fontSize: 12, fontWeight: 700, color: TILE_BLUE }}>+ New chat</button>
                 </div>
               </div>
               {!online && (
-                <div style={{ padding: 8, borderRadius: 10, background: "#F1F5F9", fontSize: 12, color: "#64748b", display: "flex", gap: 6, alignItems: "center" }}>
+                <div style={{ padding: 8, borderRadius: 10, background: "var(--surface-alt)", fontSize: 12, color: "var(--text-muted)", display: "flex", gap: 6, alignItems: "center" }}>
                   <WifiOff size={14} /> Offline — answering from cached IIP content. Escalation will be sent once back online.
                 </div>
               )}
               {messages.map((m, i) => (
                 <div key={i} style={{ display: "flex", justifyContent: m.role === "user" ? "flex-end" : "flex-start" }}>
                   <div style={{
-                    maxWidth: "82%", background: m.role === "user" ? TILE_BLUE : "#fff",
-                    color: m.role === "user" ? "#fff" : "#0f172a", borderRadius: 12, padding: 12, border: m.role === "bot" ? "1px solid #E6EDF3" : "none"
+                    maxWidth: "82%", background: m.role === "user" ? TILE_BLUE : "var(--surface)",
+                    color: m.role === "user" ? "#fff" : "var(--text)", borderRadius: 12, padding: 12, border: m.role === "bot" ? "1px solid var(--border)" : "none"
                   }}>
                     {m.type === "welcome" && <div><strong>Selam! 👋</strong><div style={{ marginTop: 6 }}>{m.text}</div></div>}
                     {m.type === "answer" && (
@@ -2707,10 +2752,10 @@ export default function ImmunizationChatBot() {
                         <div style={{ fontSize: 12, color: "#10b981", marginBottom: 6, fontWeight: 700 }}>{m.item?.source}</div>
                         <div>{m.item?.a}</div>
                         <div style={{ marginTop: 8, display: "flex", gap: 8, alignItems: "center" }}>
-                          <div style={{ color: "#64748b", fontSize: 13 }}>{feedback[m.item.id] ? "Thanks for your feedback" : "Helpful?"}</div>
-                          <button onClick={() => giveFeedback(m.item.id, "up")} style={{ background: "transparent", border: "none" }}><ThumbsUp size={14} style={{ color: feedback[m.item.id] === "up" ? "#10b981" : "#94a3b8" }} /></button>
-                          <button onClick={() => giveFeedback(m.item.id, "down")} style={{ background: "transparent", border: "none" }}><ThumbsDown size={14} style={{ color: feedback[m.item.id] === "down" ? "#ef4444" : "#94a3b8" }} /></button>
-                          <button onClick={() => toggleBookmark(m.item)} style={{ marginLeft: "auto", background: "transparent", border: "none" }}><Star size={14} style={{ color: bookmarks.some(b => b.id === m.item.id) ? "#FFC85C" : "#94a3b8" }} /></button>
+                          <div style={{ color: "var(--text-muted)", fontSize: 13 }}>{feedback[m.item.id] ? "Thanks for your feedback" : "Helpful?"}</div>
+                          <button onClick={() => giveFeedback(m.item.id, "up")} style={{ background: "transparent", border: "none" }}><ThumbsUp size={14} style={{ color: feedback[m.item.id] === "up" ? "#10b981" : "var(--text-subtle)" }} /></button>
+                          <button onClick={() => giveFeedback(m.item.id, "down")} style={{ background: "transparent", border: "none" }}><ThumbsDown size={14} style={{ color: feedback[m.item.id] === "down" ? "#ef4444" : "var(--text-subtle)" }} /></button>
+                          <button onClick={() => toggleBookmark(m.item)} style={{ marginLeft: "auto", background: "transparent", border: "none" }}><Star size={14} style={{ color: bookmarks.some(b => b.id === m.item.id) ? "#FFC85C" : "var(--text-subtle)" }} /></button>
                         </div>
                         {feedback[m.item.id] === "down" && (
                           <button onClick={() => escalate(m.item.q || m.item.source)} style={{ marginTop: 8, padding: 8, borderRadius: 10, background: ICON_RED, color: "#fff", border: "none", fontSize: 12 }}>Escalate to human focal point</button>
@@ -2722,9 +2767,9 @@ export default function ImmunizationChatBot() {
                         <div style={{ fontSize: 12, color: "#10b981", fontWeight: 700 }}>{m.item?.source}</div>
                         <div style={{ marginTop: 6 }}>{m.item?.a}</div>
                         <div style={{ marginTop: 8, display: "flex", gap: 8, alignItems: "center" }}>
-                          <div style={{ color: "#64748b", fontSize: 13 }}>{feedback[m.item.id] ? "Thanks for your feedback" : "Helpful?"}</div>
-                          <button onClick={() => giveFeedback(m.item.id, "up")} style={{ background: "transparent", border: "none" }}><ThumbsUp size={14} style={{ color: feedback[m.item.id] === "up" ? "#10b981" : "#94a3b8" }} /></button>
-                          <button onClick={() => giveFeedback(m.item.id, "down")} style={{ background: "transparent", border: "none" }}><ThumbsDown size={14} style={{ color: feedback[m.item.id] === "down" ? "#ef4444" : "#94a3b8" }} /></button>
+                          <div style={{ color: "var(--text-muted)", fontSize: 13 }}>{feedback[m.item.id] ? "Thanks for your feedback" : "Helpful?"}</div>
+                          <button onClick={() => giveFeedback(m.item.id, "up")} style={{ background: "transparent", border: "none" }}><ThumbsUp size={14} style={{ color: feedback[m.item.id] === "up" ? "#10b981" : "var(--text-subtle)" }} /></button>
+                          <button onClick={() => giveFeedback(m.item.id, "down")} style={{ background: "transparent", border: "none" }}><ThumbsDown size={14} style={{ color: feedback[m.item.id] === "down" ? "#ef4444" : "var(--text-subtle)" }} /></button>
                         </div>
                       </div>
                     )}
@@ -2733,7 +2778,7 @@ export default function ImmunizationChatBot() {
                         <div style={{ fontSize: 12, color: "#ef4444", marginBottom: 6, display: "flex", gap: 4, alignItems: "center" }}><AlertTriangle size={14} /> I don't have a confident match</div>
                         <div>Try rephrasing, browse the Learn library, or escalate to a human focal point. Suggested questions:</div>
                         <div style={{ display: "flex", gap: 8, marginTop: 8, flexWrap: "wrap" }}>
-                          {suggestedQueries.map((s, idx) => <button key={idx} onClick={() => send(s)} style={{ padding: 8, borderRadius: 10, background: "#F1F5F9", border: "none", fontSize: 12 }}>{s}</button>)}
+                          {suggestedQueries.map((s, idx) => <button key={idx} onClick={() => send(s)} style={{ padding: 8, borderRadius: 10, background: "var(--surface-alt)", border: "none", fontSize: 12 }}>{s}</button>)}
                         </div>
                         <button onClick={() => escalate(m.query)} style={{ marginTop: 10, padding: 8, borderRadius: 10, background: ICON_RED, color: "#fff", border: "none", fontSize: 12 }}>Escalate to human focal point</button>
                       </div>
@@ -2769,8 +2814,8 @@ export default function ImmunizationChatBot() {
             return (
               <div style={{ display: "grid", gap: 10 }}>
                 <h3 style={{ margin: 0 }}>FAQ</h3>
-                <p style={{ color: "#64748b", marginTop: -6, marginBottom: 4, fontSize: 13 }}>Quick short answers from the IIP Manual. Tap a question to expand it, then ask more in the chatbot if you need the full picture.</p>
-                <input value={faqSearch} onChange={e => setFaqSearch(e.target.value)} placeholder="Filter FAQs… e.g. shake test, buffer stock" style={{ padding: 12, borderRadius: 12, border: "1px solid #E6EDF3" }} />
+                <p style={{ color: "var(--text-muted)", marginTop: -6, marginBottom: 4, fontSize: 13 }}>Quick short answers from the IIP Manual. Tap a question to expand it, then ask more in the chatbot if you need the full picture.</p>
+                <input value={faqSearch} onChange={e => setFaqSearch(e.target.value)} placeholder="Filter FAQs… e.g. shake test, buffer stock" style={{ padding: 12, borderRadius: 12, border: "1px solid var(--border)", background: "var(--surface)", color: "var(--text)" }} />
                 <div style={{ display: "grid", gap: 8 }}>
                   {filtered.map((f, i) => {
                     const key = q ? `${q}-${i}` : i;
@@ -2779,12 +2824,12 @@ export default function ImmunizationChatBot() {
                       <Card key={key} style={{ padding: 0, overflow: "hidden" }}>
                         <button onClick={() => setOpenFaqIdx(open ? null : key)} style={{ width: "100%", textAlign: "left", padding: 14, background: "transparent", border: "none", display: "flex", justifyContent: "space-between", alignItems: "center", gap: 8, cursor: "pointer" }}>
                           <div style={{ fontWeight: 700, fontSize: 13.5 }}>{f.q}</div>
-                          <ChevronRight size={16} style={{ color: "#94a3b8", flexShrink: 0, transform: open ? "rotate(90deg)" : "none", transition: "transform 0.15s" }} />
+                          <ChevronRight size={16} style={{ color: "var(--text-subtle)", flexShrink: 0, transform: open ? "rotate(90deg)" : "none", transition: "transform 0.15s" }} />
                         </button>
                         {open && (
                           <div style={{ padding: "0 14px 14px" }}>
-                            <div style={{ color: "#334155", fontSize: 13, lineHeight: 1.5 }}>{f.a}</div>
-                            <div style={{ color: "#94a3b8", fontSize: 11, marginTop: 6 }}>{f.source}</div>
+                            <div style={{ color: "var(--text)", fontSize: 13, lineHeight: 1.5 }}>{f.a}</div>
+                            <div style={{ color: "var(--text-subtle)", fontSize: 11, marginTop: 6 }}>{f.source}</div>
                             <button onClick={() => { setScreen("chat"); setTimeout(() => send(f.q), 150); }} style={{ marginTop: 10, padding: "8px 12px", borderRadius: 10, background: TILE_BLUE, color: "#fff", border: "none", fontSize: 12, fontWeight: 700, display: "flex", alignItems: "center", gap: 6 }}>
                               <MessageCircle size={13} /> Learn more — ask the chatbot →
                             </button>
@@ -2793,7 +2838,7 @@ export default function ImmunizationChatBot() {
                       </Card>
                     );
                   })}
-                  {filtered.length === 0 && <div style={{ color: "#94a3b8", fontSize: 13, textAlign: "center", padding: 20 }}>No FAQs match "{faqSearch}". Try a different word, or ask the chatbot directly.</div>}
+                  {filtered.length === 0 && <div style={{ color: "var(--text-subtle)", fontSize: 13, textAlign: "center", padding: 20 }}>No FAQs match "{faqSearch}". Try a different word, or ask the chatbot directly.</div>}
                 </div>
               </div>
             );
@@ -2811,10 +2856,10 @@ export default function ImmunizationChatBot() {
                   const lastMsg = t.messages[t.messages.length - 1];
                   const preview = lastMsg?.text || lastMsg?.item?.a || lastMsg?.query || "New conversation";
                   return (
-                    <button key={t.id} onClick={() => openChat(t.id)} style={{ textAlign: "left", padding: 12, borderRadius: 12, background: t.id === activeChatId ? "#EAF1F8" : "#fff", border: t.id === activeChatId ? `2px solid ${TILE_BLUE}` : "1px solid #E6EDF3" }}>
+                    <button key={t.id} onClick={() => openChat(t.id)} style={{ textAlign: "left", padding: 12, borderRadius: 12, background: t.id === activeChatId ? "#EAF1F8" : "#fff", border: t.id === activeChatId ? `2px solid ${TILE_BLUE}` : "1px solid var(--border)" }}>
                       <div style={{ fontWeight: 700 }}>{t.title}</div>
-                      <div style={{ color: "#64748b", fontSize: 12, marginTop: 4, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{preview}</div>
-                      <div style={{ color: "#94a3b8", fontSize: 11, marginTop: 4 }}>{t.messages.length} message(s)</div>
+                      <div style={{ color: "var(--text-muted)", fontSize: 12, marginTop: 4, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{preview}</div>
+                      <div style={{ color: "var(--text-subtle)", fontSize: 11, marginTop: 4 }}>{t.messages.length} message(s)</div>
                     </button>
                   );
                 })}
@@ -2824,19 +2869,19 @@ export default function ImmunizationChatBot() {
         </div>
 
         {/* Footer / input area and bottom nav */}
-        <div style={{ position: "relative", padding: 12, borderTop: "1px solid #E6EDF3", background: "#fff" }}>
+        <div style={{ position: "relative", padding: 12, borderTop: "1px solid var(--border)", background: "var(--surface)" }}>
           {screen === "chat" ? (
             <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
               <div style={{ display: "flex", gap: 8, overflowX: "auto", paddingBottom: 2 }}>
                 {suggestedQueries.map((s, idx) => (
-                  <button key={idx} onClick={() => send(s)} style={{ flex: "0 0 auto", padding: "8px 12px", borderRadius: 20, background: "#F1F5F9", border: "1px solid #E6EDF3", fontSize: 12, color: "#334155", whiteSpace: "nowrap" }}>{s}</button>
+                  <button key={idx} onClick={() => send(s)} style={{ flex: "0 0 auto", padding: "8px 12px", borderRadius: 20, background: "var(--surface-alt)", border: "1px solid var(--border)", fontSize: 12, color: "var(--text)", whiteSpace: "nowrap" }}>{s}</button>
                 ))}
               </div>
               <div style={{ display: "flex", gap: 8 }}>
-                <input value={input} onChange={e => setInput(e.target.value)} onKeyDown={e => e.key === "Enter" && send()} placeholder="Type your question…" style={{ flex: 1, padding: 12, borderRadius: 12, border: "1px solid #E6EDF3" }} />
+                <input value={input} onChange={e => setInput(e.target.value)} onKeyDown={e => e.key === "Enter" && send()} placeholder="Type your question…" style={{ flex: 1, padding: 12, borderRadius: 12, border: "1px solid var(--border)", background: "var(--surface)", color: "var(--text)" }} />
                 <button onClick={() => send()} style={{ width: 48, height: 48, borderRadius: 12, background: TILE_BLUE, color: "#fff", border: "none", display: "flex", alignItems: "center", justifyContent: "center" }}><Send size={16} /></button>
               </div>
-              <button onClick={() => setScreen("home")} style={{ background: "transparent", border: "none", padding: 0, display: "flex", gap: 6, alignItems: "center", color: "#64748b", fontSize: 13 }}><ArrowLeft size={16} /> Back</button>
+              <button onClick={() => setScreen("home")} style={{ background: "transparent", border: "none", padding: 0, display: "flex", gap: 6, alignItems: "center", color: "var(--text-muted)", fontSize: 13 }}><ArrowLeft size={16} /> Back</button>
             </div>
           ) : (
             <div style={{ position: "relative" }}>
