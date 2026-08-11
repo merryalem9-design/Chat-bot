@@ -1851,7 +1851,7 @@ export default function ImmunizationChatBot() {
                     if (phoneInput) setUser(u => ({ ...u, phone: phoneInput }));
                     setPhase("consent");
                   }}
-                  style={{ marginTop: 4, padding: 14, borderRadius: 12, background: ICON_RED, color: "#fff", fontWeight: 700 }}
+                  style={{ marginTop: 4, padding: 14, borderRadius: 12, background: TILE_BLUE, color: "#fff", fontWeight: 700 }}
                 >
                   Next
                 </button>
@@ -1998,7 +1998,7 @@ export default function ImmunizationChatBot() {
               </div>
             </div>
 
-            <div style={{ display: "flex", justifyContent: "center", alignItems: "center", gap: 14 }}>
+            <div style={{ display: "flex", justifyContent: "center", alignItems: "center", gap: 12 }}>
               <img src={AMREF_LOGO} alt="amref" style={{ height: 100, width: "auto", objectFit: "contain" }} />
               <img src={MOH_LOGO} alt="moh" style={{ height: 100, width: "auto", objectFit: "contain" }} />
             </div>
