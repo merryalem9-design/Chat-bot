@@ -1609,6 +1609,7 @@ export default function ImmunizationChatBot() {
   const [faqView, setFaqView] = useState(null);
   const [online, setOnline] = useState(true);
   const [language, setLanguage] = useState("en");
+  const [langMenuOpen, setLangMenuOpen] = useState(false);
   const [phoneInput, setPhoneInput] = useState("");
   const [otpInput, setOtpInput] = useState("");
   const [otpSent, setOtpSent] = useState(false);
@@ -1736,12 +1737,12 @@ export default function ImmunizationChatBot() {
   };
 
   const HeaderLogos = ({ small }) => (
-    <div style={{ display: "flex", gap: 10, alignItems: "center", justifyContent: "space-between", width: "100%", marginLeft: small ? 14 : 0 }}>
+    <div style={{ display: "flex", gap: 10, alignItems: "center", justifyContent: "space-between", flex: 1, minWidth: 0 }}>
       <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
         <img src={AMREF_LOGO} alt="amref" style={{ height: small ? 40 : 48, width: "auto", objectFit: "contain", flexShrink: 0 }} />
         <div>
-          <div style={{ fontWeight: 800, fontSize: small ? 16 : 20, lineHeight: 1.1 }}>Chat Bot Based Learning Platform</div>
-          <div style={{ fontSize: small ? 11 : 13, opacity: 0.85 }}>Amref × MoH Ethiopia</div>
+          <div style={{ fontWeight: 300, fontSize: small ? 16 : 20, lineHeight: 1.1 }}>Chat Bot Based Learning Platform</div>
+          
         </div>
       </div>
       <img src={MOH_LOGO} alt="moh" style={{ height: small ? 32 : 40, width: "auto", objectFit: "contain", flexShrink: 0 }} />
@@ -1779,7 +1780,7 @@ export default function ImmunizationChatBot() {
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
               <HeaderLogos />
             </div>
-            <div style={{ fontSize: 13, fontWeight: 700, marginTop: 14, lineHeight: 1.3, textAlign: "center" }}>Immunization guidance, grounded & instant.</div>
+            <div style={{ fontSize: 13, fontWeight: 300, marginTop: 14, lineHeight: 1.3, textAlign: "center" }}>Immunization guidance, grounded & instant.</div>
           </div>
 
           <div style={{ flex: 1, padding: 20, overflowY: "auto" }}>
@@ -1814,7 +1815,7 @@ export default function ImmunizationChatBot() {
                 </div>
                 <button onClick={() => setPhase("login")} style={{ marginTop: 8, padding: 14, borderRadius: 12, background: TILE_BLUE, color: "#fff", fontWeight: 700 }}>Continue</button>
                 <div style={{ marginTop: 16, textAlign: "center", color: "var(--text-subtle)", fontSize: 11, lineHeight: 1.5 }}>
-                  Prepared by Amref Health Africa™ in Ethiopia<br />in partnership with the Federal Ministry of Health™, Ethiopia
+                  Ministry of Health™ Ethiopia, supported by Amref<br />Powered by 360Ground
                 </div>
               </div>
             )}
@@ -1892,26 +1893,117 @@ export default function ImmunizationChatBot() {
   return (
     <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", background: "#F3F4F6", padding: 20 }}>
       <div style={{ ...THEME_VARS[theme], width: PHONE_WIDTH, height: PHONE_HEIGHT, borderRadius: 24, overflow: "hidden", background: "var(--bg)", color: "var(--text)", boxShadow: "0 40px 100px rgba(0,0,0,0.35)", display: "flex", flexDirection: "column", fontFamily: APP_FONT }}>
-        <style>{`@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');`}</style>
+        <style>{`
+          @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+          /* Home page menu hover effects */
+          .domain-tile {
+            position: relative;
+            overflow: hidden;
+            isolation: isolate;
+            box-shadow: 0 5px 12px rgba(43,90,140,0.14);
+            transition: transform 0.22s cubic-bezier(.2,.8,.2,1), box-shadow 0.22s ease, background 0.22s ease;
+          }
+          .domain-tile::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, rgba(255,255,255,0.20), transparent 55%);
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.22s ease;
+            z-index: -1;
+          }
+          .domain-tile:hover {
+            background: #3E6FA3 !important;
+            transform: translateY(-5px) scale(1.015);
+            box-shadow: 0 14px 28px rgba(43,90,140,0.30), 0 0 0 2px rgba(255,255,255,0.30);
+          }
+          .domain-tile:hover::before { opacity: 1; }
+          .domain-tile > div:first-child {
+            transition: transform 0.22s cubic-bezier(.2,.8,.2,1), box-shadow 0.22s ease;
+          }
+          .domain-tile:hover > div:first-child {
+            transform: translateY(-2px) scale(1.08);
+            box-shadow: 0 5px 12px rgba(0,0,0,0.16);
+          }
+          .domain-tile:active { transform: translateY(-1px) scale(0.99); }
+
+          .faq-item {
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 3px 10px rgba(20,40,60,0.06);
+            transition: transform 0.22s cubic-bezier(.2,.8,.2,1), background 0.22s ease, border-color 0.22s ease, box-shadow 0.22s ease;
+          }
+          .faq-item::before {
+            content: "";
+            position: absolute;
+            left: 0;
+            top: 8px;
+            bottom: 8px;
+            width: 3px;
+            border-radius: 4px;
+            background: ${TILE_BLUE};
+            transform: scaleY(0);
+            transform-origin: center;
+            transition: transform 0.22s ease;
+          }
+          .faq-item:hover {
+            background: #F4F8FC !important;
+            border-color: ${TILE_BLUE} !important;
+            transform: translateX(5px);
+            box-shadow: 0 9px 20px rgba(43,90,140,0.14);
+          }
+          .faq-item:hover::before { transform: scaleY(1); }
+          .faq-item > svg { transition: transform 0.22s ease, color 0.22s ease; }
+          .faq-item:hover > svg { transform: translateX(4px); color: ${TILE_BLUE} !important; }
+        `}</style>
         <div style={{ height: 12, display: "flex", justifyContent: "center", alignItems: "center" }}>
           <div style={{ width: 120, height: 6, borderRadius: 8, background: "#000" }} />
         </div>
 
+        {/* Scrollable page area — includes the header so the header scrolls with the page */}
+        <div style={{ flex: 1, overflowY: "auto" }} ref={scrollRef}>
+
         {/* Header */}
         {screen === "home" ? (
-          <div style={{ background: `linear-gradient(135deg, ${HEADER_BLUE} 0%, #1B3F63 100%)`, padding: 18, color: "#fff", borderRadius: 24, margin: "0 10px", boxShadow: "0 10px 24px rgba(27,63,99,0.35)" }}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
-              <button onClick={() => setScreen("notifications")} style={{ position: "relative", background: "rgba(255,255,255,0.15)", border: "none", borderRadius: 12, width: 36, height: 36, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", flexShrink: 0 }}>
-                <Bell size={16} style={{ color: "#fff" }} />
+          <div style={{ position: "relative", background: `linear-gradient(135deg, ${HEADER_BLUE} 0%, #1B3F63 100%)`, padding: "32px 8px 20px", color: "#fff", borderRadius: "0 0 25px 25px", margin: 0, boxShadow: "0 10px 24px rgba(27,63,99,0.35)" }}>
+            <div style={{ position: "absolute", top: 14, right: 14, display: "flex", gap: 8, zIndex: 2 }}>
+              <button onClick={() => setScreen("notifications")} style={{ position: "relative", background: "rgba(255,255,255,0.15)", border: "none", borderRadius: 12, width: 34, height: 34, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}>
+                <Bell size={15} style={{ color: "#fff" }} />
                 {notifications.length > 0 && (
                   <span style={{ position: "absolute", top: -3, right: -3, background: ICON_RED, color: "#fff", fontSize: 9, fontWeight: 800, borderRadius: 10, minWidth: 15, height: 15, display: "flex", alignItems: "center", justifyContent: "center", padding: "0 3px" }}>{notifications.length}</span>
                 )}
               </button>
-              <HeaderLogos small />
+              <div style={{ position: "relative" }}>
+                <button onClick={() => setLangMenuOpen(o => !o)} title="Change language" style={{ background: "rgba(255,255,255,0.15)", border: "none", borderRadius: 12, width: 34, height: 34, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}>
+                  <Globe2 size={15} style={{ color: "#fff" }} />
+                </button>
+                {langMenuOpen && (
+                  <>
+                    <div onClick={() => setLangMenuOpen(false)} style={{ position: "fixed", inset: 0, zIndex: 3 }} />
+                    <div style={{ position: "absolute", top: 40, right: 0, background: "#fff", borderRadius: 12, boxShadow: "0 10px 24px rgba(0,0,0,0.25)", overflow: "hidden", width: 170, zIndex: 4 }}>
+                      {[
+                        { code: "en", label: "English" },
+                        { code: "am", label: "አማርኛ (Amharic)" },
+                        { code: "om", label: "Afaan Oromoo" },
+                      ].map(l => (
+                        <button key={l.code} onClick={() => { setLanguage(l.code); setLangMenuOpen(false); }} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", width: "100%", padding: "10px 12px", background: language === l.code ? "#EAF1F8" : "#fff", border: "none", borderBottom: "1px solid #F0F0F0", color: "#1B3F63", fontWeight: language === l.code ? 800 : 500, fontSize: 13, cursor: "pointer", textAlign: "left" }}>
+                          {l.label}
+                          {language === l.code && <CheckCircle size={14} style={{ color: TILE_BLUE }} />}
+                        </button>
+                      ))}
+                    </div>
+                  </>
+                )}
+              </div>
             </div>
-            <div style={{ marginTop: 12 }}>
-              <h2 style={{ margin: 0, fontSize: 15, fontWeight: 700, lineHeight: 1.25, textAlign: "center" }}>Immunization guidance,<br />grounded & instant.</h2>
+
+            <div style={{ display: "flex", justifyContent: "center", alignItems: "center", gap: 14 }}>
+              <img src={AMREF_LOGO} alt="amref" style={{ height: 100, width: "auto", objectFit: "contain" }} />
+              <img src={MOH_LOGO} alt="moh" style={{ height: 100, width: "auto", objectFit: "contain" }} />
             </div>
+            <div style={{ fontWeight: 400, fontSize: 20, lineHeight: 1.2, marginTop: 30, textAlign: "center" }}>Chat Bot Based Learning Platform</div>
+            <div style={{ fontSize: 17, fontWeight: 100, marginTop: 19, lineHeight: 1.3, textAlign: "center" }}>Immunization guidance,<br />grounded &amp; instant.</div>
           </div>
         ) : (
           <div style={{ padding: "14px 18px", display: "flex", alignItems: "center", gap: 10, borderBottom: "1px solid var(--border)" }}>
@@ -1919,8 +2011,8 @@ export default function ImmunizationChatBot() {
           </div>
         )}
 
-        {/* Content scroll */}
-        <div style={{ flex: 1, overflowY: "auto", padding: 16 }} ref={scrollRef}>
+        {/* Page content */}
+        <div style={{ padding: 16 }}>
           {screen === "home" && (
             <>
               <div onClick={() => setOnline(o => !o)} style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 10, cursor: "pointer", fontSize: 12, color: online ? "#10b981" : "var(--text-subtle)", fontWeight: 700 }}>
@@ -1940,25 +2032,25 @@ export default function ImmunizationChatBot() {
                 if (!nextKey) return null;
                 const started = progress.completedModules.length > 0;
                 return (
-                  <div onClick={() => setScreen(MODULE_META[nextKey].screen)} style={{ display: "flex", gap: 12, alignItems: "center", padding: 12, borderRadius: 12, background: "#EAF1F8", border: `1px solid ${TILE_BLUE}`, cursor: "pointer", marginBottom: 12 }}>
-                    <div style={{ width: 40, height: 40, borderRadius: 10, background: "#fff", display: "flex", alignItems: "center", justifyContent: "center" }}><PlayCircle size={18} style={{ color: TILE_BLUE }} /></div>
+                  <div onClick={() => setScreen(MODULE_META[nextKey].screen)} style={{ display: "flex", gap: 10, alignItems: "center", padding: 9, borderRadius: 10, background: "#EAF1F8", border: `1px solid ${TILE_BLUE}`, cursor: "pointer", marginBottom: 8 }}>
+                    <div style={{ width: 32, height: 32, borderRadius: 8, background: "#fff", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}><PlayCircle size={15} style={{ color: TILE_BLUE }} /></div>
                     <div style={{ textAlign: "left" }}>
-                      <div style={{ fontWeight: 800, fontSize: 13 }}>{started ? "Continue learning" : "Start learning"}</div>
-                      <div style={{ color: "var(--text-muted)", fontSize: 12 }}>{MODULE_META[nextKey].label}</div>
+                      <div style={{ fontWeight: 800, fontSize: 12 }}>{started ? "Continue learning" : "Start learning"}</div>
+                      <div style={{ color: "var(--text-muted)", fontSize: 11 }}>{MODULE_META[nextKey].label}</div>
                     </div>
-                    <ChevronRight size={18} style={{ marginLeft: "auto", color: TILE_BLUE }} />
+                    <ChevronRight size={16} style={{ marginLeft: "auto", color: TILE_BLUE }} />
                   </div>
                 );
               })()}
 
-              <div style={{ marginBottom: 12 }}>
-                <div onClick={() => setScreen("chat")} style={{ display: "flex", gap: 12, alignItems: "center", padding: 12, borderRadius: 12, background: "var(--surface)", border: "1px solid var(--border)", cursor: "pointer" }}>
-                  <div style={{ width: 44, height: 44, borderRadius: 10, background: "var(--surface-alt)", display: "flex", alignItems: "center", justifyContent: "center" }}><Sparkles size={18} style={{ color: TILE_BLUE }} /></div>
+              <div style={{ marginBottom: 8 }}>
+                <div onClick={() => setScreen("chat")} style={{ display: "flex", gap: 10, alignItems: "center", padding: 9, borderRadius: 10, background: "var(--surface)", border: "1px solid var(--border)", cursor: "pointer" }}>
+                  <div style={{ width: 32, height: 32, borderRadius: 8, background: "var(--surface-alt)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}><Sparkles size={15} style={{ color: TILE_BLUE }} /></div>
                   <div style={{ textAlign: "left" }}>
-                    <div style={{ fontWeight: 800 }}>Ask a question…</div>
-                    <div style={{ color: "var(--text-muted)" }}>e.g. "At what temperature is Penta stored?"</div>
+                    <div style={{ fontWeight: 800, fontSize: 12 }}>Ask a question…</div>
+                    <div style={{ color: "var(--text-muted)", fontSize: 11 }}>e.g. "At what temperature is Penta stored?"</div>
                   </div>
-                  <ChevronRight size={18} style={{ marginLeft: "auto", color: "var(--text-subtle)" }} />
+                  <ChevronRight size={16} style={{ marginLeft: "auto", color: "var(--text-subtle)" }} />
                 </div>
               </div>
 
@@ -1978,11 +2070,11 @@ export default function ImmunizationChatBot() {
                       else if (d.id === "coldchain") setScreen("coldchain_module");
                       else if (d.id === "session") setScreen("session_module");
                       else if (d.id === "faq") setScreen("faq_module");
-                    }} style={{ padding: 16, borderRadius: 14, background: TILE_BLUE, color: "#fff", textAlign: "left", minHeight: 96, display: "flex", flexDirection: "column", justifyContent: "space-between", border: "none", cursor: "pointer" }}>
+                    }} className="domain-tile" style={{ padding: 16, borderRadius: 14, background: TILE_BLUE, color: "#fff", textAlign: "left", minHeight: 96, display: "flex", flexDirection: "column", justifyContent: "space-between", border: "none", cursor: "pointer" }}>
                       <div style={{ width: 36, height: 36, borderRadius: 10, background: "#fff", display: "flex", alignItems: "center", justifyContent: "center" }}>
                         <d.icon size={18} color={TILE_BLUE} />
                       </div>
-                      <div style={{ fontWeight: 800, fontSize: 14 }}>{d.label}</div>
+                      <div style={{ fontWeight: 400, fontSize: 14 }}>{d.label}</div>
                     </button>
                   ))}
                 </div>
@@ -1992,8 +2084,8 @@ export default function ImmunizationChatBot() {
                 <SectionTag>Frequently asked</SectionTag>
                 <div style={{ display: "grid", gap: 8 }}>
                   {FAQS.slice(0, 4).map((f, i) => (
-                    <button key={i} onClick={() => { setScreen("chat"); setTimeout(() => send(f.q), 150); }} style={{ padding: 14, borderRadius: 12, background: "var(--surface)", border: "1px solid var(--border)", textAlign: "left", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                      <div style={{ fontWeight: 700 }}>{f.q}</div>
+                    <button key={i} onClick={() => { setScreen("chat"); setTimeout(() => send(f.q), 150); }} className="faq-item" style={{ padding: 14, borderRadius: 12, background: "var(--surface)", border: "1px solid var(--border)", textAlign: "left", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                      <div style={{ fontWeight: 400 }}>{f.q}</div>
                       <ChevronRight size={16} style={{ color: "var(--text-subtle)" }} />
                     </button>
                   ))}
@@ -2012,7 +2104,7 @@ export default function ImmunizationChatBot() {
               </div>
 
               <div style={{ marginBottom: 16, textAlign: "center", color: "var(--text-subtle)", fontSize: 11, lineHeight: 1.5 }}>
-                Prepared by Amref Health Africa™ in Ethiopia<br />in partnership with the Federal Ministry of Health™, Ethiopia
+                Ministry of Health™ Ethiopia, supported by Amref<br />Powered by 360Ground
               </div>
             </>
           )}
@@ -2866,6 +2958,7 @@ export default function ImmunizationChatBot() {
               </div>
             </div>
           )}
+        </div>
         </div>
 
         {/* Footer / input area and bottom nav */}
