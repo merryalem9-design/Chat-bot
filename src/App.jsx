@@ -1745,7 +1745,7 @@ export default function ImmunizationChatBot() {
           
         </div>
       </div>
-      <img src={MOH_LOGO} alt="moh" style={{ height: small ? 32 : 40, width: "auto", objectFit: "contain", flexShrink: 0 }} />
+      
     </div>
   );
 
