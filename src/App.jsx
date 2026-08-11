@@ -249,6 +249,8 @@ const JOB_AIDS = [
     content: "Common causes of poor data quality:\n- Tally sheet doesn't match the register\n- Entries recorded late or from memory\n- Monthly physical stock count skipped\n- No second-person check before reporting upward\n\nHow to fix it:\n1. Record each dose immediately after it is given — not later from memory.\n2. Reconcile the tally sheet against the register and ledger book at the end of every day.\n3. Do a full physical stock verification at least once a month (RDQA).\n4. Have a second staff member countercheck totals before they go up to PHCU level.\n5. Investigate and correct any mismatch the same week it is found." },
   { id: "ja-vrf", title: "Vaccine Requisition Form (VRF) Basics", source: "IIP Ch 2.3.2",
     content: "The VRF is used to request vaccines/supplies from the next level of the supply chain. It should be submitted before the end of the agreed supply period to avoid stock-out from lead time.\nOrder = Maximum stock - Current balance + Lead time need.\nAlways bundle vaccines with diluent, AD syringe and safety box, and confirm cold chain storage capacity before ordering." },
+  { id: "ja-schedule", title: "Routine Immunization Schedule (Quick Reference)", source: "IIP Ch 1.2.1",
+    content: "At birth: BCG, bOPV-0, HepB birth dose.\n6 weeks: bOPV-1, Penta-1, PCV-1, Rota-1.\n10 weeks: bOPV-2, Penta-2, PCV-2, Rota-2.\n14 weeks: bOPV-3, IPV, Penta-3, PCV-3.\n9 months: Measles-1.\n15 months: Measles-2.\n\nMinimum interval between doses of the same antigen: 4 weeks (28 days).\nPopulation base for forecasting: Live Birth is used for BCG, HepB birth dose, Td and bOPV; Surviving Infant is used for the remaining routine antigens.\nIf a dose is missed, resume the schedule from the next due dose — do not restart the series (minimum interval rule still applies)." },
 ];
 
 /* ===========================
@@ -317,6 +319,20 @@ const Input = ({ label, placeholder, value, onChange, type = "text" }) => (
 
 const SectionTag = ({ children }) => (
   <div style={{ display: "inline-block", padding: "8px 12px", borderRadius: 20, background: ICON_RED, color: "#fff", fontWeight: 700, marginBottom: 12 }}>{children}</div>
+);
+
+// Shown right after every calculation result so the user can see exactly
+// which formula/rule produced it and where it comes from in the IIP manual.
+const FormulaNote = ({ source, lines }) => (
+  <div style={{ marginTop: 10, padding: 10, borderRadius: 10, background: "#F8FAFC", border: "1px dashed #CBD5E1" }}>
+    <div style={{ fontWeight: 800, fontSize: 12, color: "#334155", marginBottom: 4 }}>Formula / rule used</div>
+    <div style={{ display: "grid", gap: 3 }}>
+      {(Array.isArray(lines) ? lines : [lines]).map((l, i) => (
+        <div key={i} style={{ fontSize: 12, color: "#475569", fontFamily: "ui-monospace, SFMono-Regular, Menlo, monospace" }}>{l}</div>
+      ))}
+    </div>
+    <div style={{ fontSize: 11, color: "#94a3b8", marginTop: 6 }}>Source: {source}</div>
+  </div>
 );
 
 // Sub-menu grid used inside Stock Management / Cold Chain / Session Planning
@@ -407,10 +423,10 @@ function ForecastingCalculator({ onComplete, completed }) {
   const [method, setMethod] = useState("target_population");
   const [reconstituted, setReconstituted] = useState(false); // BCG/Measles -> mixing syringe applies
   const [inputs, setInputs] = useState({
-    targets: "", coverage: "100", dosesPerPerson: "1",
+    targets: "", coverage: "", dosesPerPerson: "",
     begin: "", received: "", end: "", wasted: "",
-    posts: "", weeks: "52", sessionsPerWeek: "1", vialsPerSession: "",
-    wastageRatePct: "5", dosesPerVial: "1"
+    posts: "", weeks: "", sessionsPerWeek: "", vialsPerSession: "",
+    wastageRatePct: "", dosesPerVial: ""
   });
   const [result, setResult] = useState(null);
   const [error, setError] = useState("");
@@ -419,7 +435,7 @@ function ForecastingCalculator({ onComplete, completed }) {
 
   const calculate = () => {
     setError("");
-    const wastageRatePct = parseFloat(inputs.wastageRatePct) || 0;
+    const wastageRatePct = parseFloat(inputs.wastageRatePct) || 5;
     if (wastageRatePct >= 100 || wastageRatePct < 0) return setError("Wastage rate must be between 0 and 99%.");
     const wastageFactor = 100 / (100 - wastageRatePct); // IIP Ch 2.4.1
     const dosesPerVial = parseFloat(inputs.dosesPerVial) || 1;
@@ -427,7 +443,7 @@ function ForecastingCalculator({ onComplete, completed }) {
     let annualDoses = 0;
     if (method === "target_population") {
       const targets = Number(inputs.targets || 0);
-      const coverage = Number(inputs.coverage || 0) / 100;
+      const coverage = Number(inputs.coverage || 100) / 100;
       const doses = Number(inputs.dosesPerPerson || 1);
       if (!targets || targets <= 0) return setError("Enter a valid target population (e.g. Live Births / Surviving Infants).");
       // Annual Need = Target population * Coverage * doses per individual * Wastage Factor  (IIP Ch 2.2.1)
@@ -438,7 +454,7 @@ function ForecastingCalculator({ onComplete, completed }) {
       annualDoses = (begin + received) - (end + wasted);
       if (annualDoses <= 0) return setError("Consumption inputs give zero or negative need; check values.");
     } else if (method === "immunization_session") {
-      const posts = Number(inputs.posts || 0), weeks = Number(inputs.weeks || 0), sessionsPerWeek = Number(inputs.sessionsPerWeek || 0), vialsPerSession = Number(inputs.vialsPerSession || 0);
+      const posts = Number(inputs.posts || 0), weeks = Number(inputs.weeks || 52), sessionsPerWeek = Number(inputs.sessionsPerWeek || 1), vialsPerSession = Number(inputs.vialsPerSession || 0);
       if (!posts || !weeks || !sessionsPerWeek || !vialsPerSession) return setError("Fill all session planning fields.");
       // Annual need = posts * weeks * sessions/week * avg vials/session * doses/vial (IIP Ch 2.2.1 Table 2.1)
       annualDoses = posts * weeks * sessionsPerWeek * vialsPerSession * dosesPerVial;
@@ -478,7 +494,7 @@ function ForecastingCalculator({ onComplete, completed }) {
 
   const reset = () => {
     setResult(null);
-    setInputs({ targets: "", coverage: "100", dosesPerPerson: "1", begin: "", received: "", end: "", wasted: "", posts: "", weeks: "52", sessionsPerWeek: "1", vialsPerSession: "", wastageRatePct: "5", dosesPerVial: "1" });
+    setInputs({ targets: "", coverage: "", dosesPerPerson: "", begin: "", received: "", end: "", wasted: "", posts: "", weeks: "", sessionsPerWeek: "", vialsPerSession: "", wastageRatePct: "", dosesPerVial: "" });
   };
 
   return (
@@ -550,6 +566,20 @@ function ForecastingCalculator({ onComplete, completed }) {
               </div>
             </div>
           </Card>
+          <FormulaNote
+            source="IIP Ch 2.2.1"
+            lines={[
+              method === "target_population" && "Annual need = Target population × Coverage × Doses per person × Wastage Factor",
+              method === "consumption" && "Vaccine need = (Beginning balance + Received) − (Ending balance + Wasted unopened doses)",
+              method === "immunization_session" && "Annual need = Posts × Weeks × Sessions/week × Avg vials/session × Doses/vial",
+              "Wastage Factor = 100 ÷ (100 − Wastage rate %)",
+              "AD Syringe = 1 per dose (same as annual/monthly need)",
+              "Vials needed = Total doses ÷ Doses per vial",
+              reconstituted && "Mixing Syringe = Number of Vials × Wastage Factor (reconstituted vaccines only)",
+              "Safety box = (Total AD Syringe + Total Mixing Syringe) × Wastage Factor ÷ 100",
+              "Buffer stock (informational) = Annual need × 25%",
+            ].filter(Boolean)}
+          />
           <div style={{ display: "flex", gap: 8 }}>
             <button onClick={() => setResult(null)} style={{ flex: 1, padding: 10, borderRadius: 10, background: "#F1F5F9" }}>New calculation</button>
             <button onClick={reset} style={{ flex: 1, padding: 10, borderRadius: 10, background: "#fff", border: "1px solid #E6EDF3" }}>Reset</button>
@@ -726,6 +756,14 @@ function EligibilityCalculator({ onComplete, completed }) {
               );
             })}
           </div>
+          <FormulaNote
+            source="IIP Ch 1.2.1 (routine schedule), Ch 4/6 (contraindications)"
+            lines={[
+              "Age (days) = Visit date − Date of birth",
+              "Eligible when: Age ≥ minimum age for the dose AND previous dose in series already given AND ≥ 28 days since that previous dose",
+              "Postponed when: fever today OR moderate/severe illness reported (overrides all other checks)",
+            ]}
+          />
         </div>
       )}
 
@@ -756,11 +794,11 @@ const ANTIGENS = [
 const AD_SYRINGE_WMF = 1.05; // IIP Table 2.3 uses a uniform 1.05 wastage factor for AD/mixing syringe & safety box calcs
 
 function MultiVaccineForecastTable({ onComplete }) {
-  const [population, setPopulation] = useState("25000");
-  const [lbPct, setLbPct] = useState("3.7");
-  const [siPct, setSiPct] = useState("3.2");
-  const [pfizerPct, setPfizerPct] = useState("64");
-  const [hpvPct, setHpvPct] = useState("1.4");
+  const [population, setPopulation] = useState("");
+  const [lbPct, setLbPct] = useState("");
+  const [siPct, setSiPct] = useState("");
+  const [pfizerPct, setPfizerPct] = useState("");
+  const [hpvPct, setHpvPct] = useState("");
   const [rows, setRows] = useState(null);
   const [err, setErr] = useState("");
 
@@ -768,10 +806,10 @@ function MultiVaccineForecastTable({ onComplete }) {
     const pop = Number(population || 0);
     if (pop <= 0) return setErr("Enter a valid catchment population.");
     setErr("");
-    const lb = Math.round(pop * (Number(lbPct) / 100));
-    const si = Math.round(pop * (Number(siPct) / 100));
-    const pf = Math.round(pop * (Number(pfizerPct) / 100));
-    const hp = Math.round(pop * (Number(hpvPct) / 100));
+    const lb = Math.round(pop * (Number(lbPct || 3.7) / 100));
+    const si = Math.round(pop * (Number(siPct || 3.2) / 100));
+    const pf = Math.round(pop * (Number(pfizerPct || 64) / 100));
+    const hp = Math.round(pop * (Number(hpvPct || 1.4) / 100));
 
     const baseVal = { lb, si, pfizer: pf, hpv: hp };
 
@@ -805,10 +843,10 @@ function MultiVaccineForecastTable({ onComplete }) {
       <div style={{ fontSize: 12, color: "#64748b" }}>Replicates IIP Table 2.2/2.3 (Example 2.1) — computes all antigens from one catchment population.</div>
       <Input label="Catchment population" value={population} onChange={e => setPopulation(e.target.value)} placeholder="e.g. 25000" />
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
-        <Input label="% Live Birth" value={lbPct} onChange={e => setLbPct(e.target.value)} />
-        <Input label="% Surviving Infant" value={siPct} onChange={e => setSiPct(e.target.value)} />
-        <Input label="% for Pfizer target (COVID)" value={pfizerPct} onChange={e => setPfizerPct(e.target.value)} />
-        <Input label="% for HPV target" value={hpvPct} onChange={e => setHpvPct(e.target.value)} />
+        <Input label="% Live Birth" value={lbPct} onChange={e => setLbPct(e.target.value)} placeholder="e.g. 3.7" />
+        <Input label="% Surviving Infant" value={siPct} onChange={e => setSiPct(e.target.value)} placeholder="e.g. 3.2" />
+        <Input label="% for Pfizer target (COVID)" value={pfizerPct} onChange={e => setPfizerPct(e.target.value)} placeholder="e.g. 64" />
+        <Input label="% for HPV target" value={hpvPct} onChange={e => setHpvPct(e.target.value)} placeholder="e.g. 1.4" />
       </div>
       {err && <div style={{ color: "#ef4444", fontWeight: 700 }}>{err}</div>}
       <button onClick={calc} style={{ padding: 12, borderRadius: 10, background: TILE_BLUE, color: "#fff", fontWeight: 700 }}>Generate Facility Table</button>
@@ -848,6 +886,16 @@ function MultiVaccineForecastTable({ onComplete }) {
             <div>Total Mixing Syringes (annual, BCG + Measles): {rows.totalMixing}</div>
             <div style={{ fontWeight: 700, marginTop: 4 }}>Safety box — Annual: {rows.safetyBoxAnnual} · Monthly: {rows.safetyBoxMonthly}</div>
           </Card>
+          <FormulaNote
+            source="IIP Ch 2.2.1, Table 2.2/2.3 (Example 2.1)"
+            lines={[
+              "Target = Catchment population × Base-population % (Live Birth / Surviving Infant / Pfizer / HPV)",
+              "Annual need (per antigen) = Target × Coverage × Doses in schedule × Wastage Multiplication Factor (WMF)",
+              "AD Syringe (annual) = Target × Coverage × Doses × 1.05 (uniform syringe WMF)",
+              "Mixing Syringe (annual) = ⌈Annual doses ÷ Doses per vial⌉ × 1.05 (BCG & Measles only)",
+              "Safety box (annual) = (Total AD Syringes + Total Mixing Syringes) × 1.05 ÷ 100",
+            ]}
+          />
         </div>
       )}
     </div>
@@ -894,6 +942,15 @@ function StockLevelCalculator({ onComplete, completed }) {
             <div style={{ fontWeight: 700 }}>Minimum stock level: {result.minimum} doses</div>
             <div style={{ fontWeight: 700 }}>Maximum stock level: {result.maximum} doses</div>
           </div>
+          <FormulaNote
+            source="IIP Ch 2.3.1"
+            lines={[
+              "Safety stock = Need for supply period × 25%",
+              "Lead time consumption = Need for supply period ÷ 4",
+              "Minimum stock = Safety stock + Lead time consumption",
+              "Maximum stock = Need for supply period + Safety stock",
+            ]}
+          />
         </Card>
       )}
     </div>
@@ -941,6 +998,15 @@ function WastageCalculator({ onComplete }) {
             <div>Vaccine Wastage Rate (VWR): {result.VWR}%</div>
             <div>Wastage Factor: {result.wastageFactor ?? "N/A"}</div>
           </div>
+          <FormulaNote
+            source="IIP Ch 2.4.1"
+            lines={[
+              "Doses available = Beginning balance + Received − Ending balance",
+              "Vaccine Usage Rate (VUR) = (Doses administered ÷ Doses available) × 100",
+              "Vaccine Wastage Rate (VWR) = 100 − VUR",
+              "Wastage Factor = 100 ÷ (100 − VWR)",
+            ]}
+          />
         </Card>
       )}
     </div>
@@ -978,9 +1044,15 @@ function MDVPChecker({ onChangeComplete }) {
         </div>
       ))}
       {answeredAll && (
-        <Card style={{ background: allYes ? "#E6F7F1" : "#FEE2E2", borderColor: allYes ? "#10b981" : "#ef4444" }}>
-          {allYes ? "This vial may be kept and used up to 28 days after opening (meets MDVP criteria)." : "Do NOT keep — criteria not met. Discard within 6 hours of opening / end of session (if reconstituted) or immediately if any other criterion fails."}
-        </Card>
+        <>
+          <Card style={{ background: allYes ? "#E6F7F1" : "#FEE2E2", borderColor: allYes ? "#10b981" : "#ef4444" }}>
+            {allYes ? "This vial may be kept and used up to 28 days after opening (meets MDVP criteria)." : "Do NOT keep — criteria not met. Discard within 6 hours of opening / end of session (if reconstituted) or immediately if any other criterion fails."}
+          </Card>
+          <FormulaNote
+            source="IIP Ch 2.4.2"
+            lines={["Rule: Keep for up to 28 days only if ALL 7 MDVP criteria = Yes. Any single \"No\" → discard."]}
+          />
+        </>
       )}
     </div>
   );
@@ -1000,7 +1072,15 @@ function VVMChecker({ onChangeComplete }) {
         <button onClick={() => setStage(3)} style={{ padding: 12, borderRadius: 10, background: "#FEE2E2", border: "1px solid #ef4444" }}>Stage 3 — square = circle</button>
         <button onClick={() => setStage(4)} style={{ padding: 12, borderRadius: 10, background: "#FEE2E2", border: "1px solid #ef4444" }}>Stage 4 — square darker</button>
       </div>
-      {stage && <Card>{stage <= 2 ? "Safe to use (VVM within acceptable stage)." : "Discard — VVM at or past the discard point."}</Card>}
+      {stage && (
+        <>
+          <Card>{stage <= 2 ? "Safe to use (VVM within acceptable stage)." : "Discard — VVM at or past the discard point."}</Card>
+          <FormulaNote
+            source="IIP Ch 2.6.2"
+            lines={["Rule: Stage 1–2 (inner square lighter than outer circle) = safe to use. Stage 3–4 (square = circle or darker) = discard."]}
+          />
+        </>
+      )}
     </div>
   );
 }
@@ -1093,12 +1173,18 @@ function TemperatureExcursionHelper() {
       </div>
 
       {range && (
-        <Card style={{ background: range === "normal" ? "#E6F7F1" : (range === "8to10" ? "#FEF9C3" : "#FEE2E2") }}>
-          <div style={{ fontWeight: 800, marginBottom: 6 }}>{ACTION_HEADLINE[range]}</div>
-          <ul style={{ margin: 0, paddingLeft: 18, display: "grid", gap: 4 }}>
-            {actions[range].map((a, i) => <li key={i} style={{ fontSize: 13 }}>{a}</li>)}
-          </ul>
-        </Card>
+        <>
+          <Card style={{ background: range === "normal" ? "#E6F7F1" : (range === "8to10" ? "#FEF9C3" : "#FEE2E2") }}>
+            <div style={{ fontWeight: 800, marginBottom: 6 }}>{ACTION_HEADLINE[range]}</div>
+            <ul style={{ margin: 0, paddingLeft: 18, display: "grid", gap: 4 }}>
+              {actions[range].map((a, i) => <li key={i} style={{ fontSize: 13 }}>{a}</li>)}
+            </ul>
+          </Card>
+          <FormulaNote
+            source="IIP Ch 2.6.3"
+            lines={["Rule: reading < 2°C → below range; 2–8°C → normal; >8–10°C → mildly high; >10°C → above range. Range determines the action list shown."]}
+          />
+        </>
       )}
 
       {log.length > 0 && (
@@ -1155,16 +1241,22 @@ function ShakeTestChecker() {
       )}
 
       {sedimentFaster === true && (
-        <Card style={{ background: "#FEE2E2", borderColor: "#ef4444" }}>
-          <div style={{ fontWeight: 800 }}>Discard this vial — it has freeze damage.</div>
-          <div style={{ fontSize: 13, marginTop: 4 }}>Same-rate or faster sedimentation confirms the vial was frozen. Discard it and check the rest of the batch stored the same way.</div>
-        </Card>
+        <>
+          <Card style={{ background: "#FEE2E2", borderColor: "#ef4444" }}>
+            <div style={{ fontWeight: 800 }}>Discard this vial — it has freeze damage.</div>
+            <div style={{ fontSize: 13, marginTop: 4 }}>Same-rate or faster sedimentation confirms the vial was frozen. Discard it and check the rest of the batch stored the same way.</div>
+          </Card>
+          <FormulaNote source="IIP Ch 2.6.4" lines={["Rule: Suspect vial sediments at the same rate as or faster than the known-frozen control vial → discard."]} />
+        </>
       )}
       {sedimentFaster === false && (
-        <Card style={{ background: "#E6F7F1", borderColor: "#10b981" }}>
-          <div style={{ fontWeight: 800 }}>Safe to use — this vial was not frozen.</div>
-          <div style={{ fontSize: 13, marginTop: 4 }}>Slower sedimentation than the control means the vial is undamaged and safe to use.</div>
-        </Card>
+        <>
+          <Card style={{ background: "#E6F7F1", borderColor: "#10b981" }}>
+            <div style={{ fontWeight: 800 }}>Safe to use — this vial was not frozen.</div>
+            <div style={{ fontSize: 13, marginTop: 4 }}>Slower sedimentation than the control means the vial is undamaged and safe to use.</div>
+          </Card>
+          <FormulaNote source="IIP Ch 2.6.4" lines={["Rule: Suspect vial sediments slower than the known-frozen control vial → safe to use."]} />
+        </>
       )}
 
       {(frozeControl !== null) && (
@@ -1362,10 +1454,10 @@ function ProfileScreen({ user, onLogout, onOpenOffline, language, setLanguage })
 function SessionPlanningCalculator({ onComplete, completed }) {
   const [inputs, setInputs] = useState({
     posts: "",
-    weeks: "52",
-    sessionsPerWeek: "1",
+    weeks: "",
+    sessionsPerWeek: "",
     vialsPerSession: "",
-    dosesPerVial: "1"
+    dosesPerVial: ""
   });
   const [result, setResult] = useState(null);
   const [error, setError] = useState("");
@@ -1401,7 +1493,7 @@ function SessionPlanningCalculator({ onComplete, completed }) {
   };
 
   const reset = () => {
-    setInputs({ posts: "", weeks: "52", sessionsPerWeek: "1", vialsPerSession: "", dosesPerVial: "1" });
+    setInputs({ posts: "", weeks: "", sessionsPerWeek: "", vialsPerSession: "", dosesPerVial: "" });
     setResult(null);
     setError("");
   };
@@ -1440,9 +1532,15 @@ function SessionPlanningCalculator({ onComplete, completed }) {
               <div>Annual vaccine need: <b>{result.annualDoses} doses</b></div>
               <div>Average monthly need: <b>{result.monthlyDoses} doses</b></div>
             </div>
-            <div style={{ marginTop: 10, padding: 10, borderRadius: 8, background: "#F1F5F9", fontSize: 12, color: "#475569" }}>
-              Formula: posts × weeks × sessions/week × average vials/session × doses/vial.
-            </div>
+            <FormulaNote
+              source="IIP Ch 2.2.1, Table 2.1"
+              lines={[
+                "Annual sessions = Posts × Weeks of operation × Sessions per week",
+                "Annual vials required = Annual sessions × Avg vials per session",
+                "Annual vaccine need = Annual vials required × Doses per vial",
+                "Monthly need = Annual vaccine need ÷ 12",
+              ]}
+            />
           </Card>
           <div style={{ display: "flex", gap: 8 }}>
             <button onClick={() => setResult(null)} style={{ flex: 1, padding: 10, borderRadius: 10, background: "#F1F5F9" }}>New calculation</button>
@@ -1460,6 +1558,7 @@ export default function ImmunizationChatBot() {
   const [forecastView, setForecastView] = useState("single");
   const [stockView, setStockView] = useState(null);
   const [ledgerReadMore, setLedgerReadMore] = useState(false);
+  const [serviceReadMore, setServiceReadMore] = useState(false);
   const [coldChainView, setColdChainView] = useState(null);
   const [sessionView, setSessionView] = useState(null);
   const [faqView, setFaqView] = useState(null);
@@ -2349,6 +2448,17 @@ export default function ImmunizationChatBot() {
                     {faqView === "service" && (
                       <div style={{ marginBottom: 12 }}>
                         <EligibilityCalculator onComplete={markCompleted} completed={progress.completedModules.includes("eligibility_module")} />
+                        <Card style={{ marginTop: 10 }}>
+                          <div style={{ fontWeight: 800 }}>When are common vaccines given?</div>
+                          <div style={{ color: "#64748b", marginTop: 6, fontSize: 13 }}>A short summary of the routine schedule — how many days/weeks/months after birth each vaccine is due, and the minimum interval between doses.</div>
+                          <div style={{ fontSize: 11, color: "#94a3b8", marginTop: 6 }}>IIP Ch 1.2.1</div>
+                          <button onClick={() => setServiceReadMore(v => !v)} style={{ marginTop: 8, background: "transparent", border: "none", padding: 0, color: TILE_BLUE, fontWeight: 700, fontSize: 12, cursor: "pointer" }}>{serviceReadMore ? "Show less ▲" : "Read more — routine immunization schedule →"}</button>
+                          {serviceReadMore && (
+                            <div style={{ marginTop: 10, padding: 10, borderRadius: 10, background: "#F8FAFC", fontSize: 12.5, color: "#334155", whiteSpace: "pre-line", lineHeight: 1.6 }}>
+                              {JOB_AIDS.find(j => j.id === "ja-schedule")?.content}
+                            </div>
+                          )}
+                        </Card>
                       </div>
                     )}
                     <div style={{ display: "grid", gap: 8 }}>
