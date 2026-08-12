@@ -565,8 +565,43 @@ function ForecastingCalculator({ onComplete, completed }) {
       <Input label="Doses per vial / ampoule" value={inputs.dosesPerVial} onChange={e => change("dosesPerVial", e.target.value)} placeholder="e.g. 20 (BCG), 10 (Measles), 1 (Penta)" />
 
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: 10, borderRadius: 10, border: "1px solid var(--border)" }}>
-        <div style={{ fontSize: 13, fontWeight: 700, color: "var(--text)" }}>Reconstituted vaccine? (BCG / Measles — needs mixing syringe)</div>
-        <button onClick={() => setReconstituted(r => !r)} style={{ padding: 8, borderRadius: 8, background: reconstituted ? TILE_BLUE : "var(--surface-alt)", color: reconstituted ? "#fff" : "var(--text)", fontWeight: 700, fontSize: 12 }}>{reconstituted ? "Yes" : "No"}</button>
+        <div style={{ fontSize: 13, fontWeight: 700, color: "var(--text)", paddingRight: 12 }}>
+          Reconstituted vaccine? (BCG / Measles — needs mixing syringe)
+        </div>
+        <button
+          type="button"
+          role="switch"
+          aria-checked={reconstituted}
+          aria-label="Reconstituted vaccine"
+          onClick={() => setReconstituted(r => !r)}
+          style={{
+            position: "relative",
+            flexShrink: 0,
+            width: 48,
+            height: 26,
+            padding: 0,
+            border: "none",
+            borderRadius: 999,
+            background: reconstituted ? TILE_BLUE : "#CBD5E1",
+            cursor: "pointer",
+            transition: "background 0.2s ease",
+            boxShadow: reconstituted ? `0 2px 8px rgba(43,90,140,0.28)` : "inset 0 0 0 1px rgba(0,0,0,0.08)",
+          }}
+        >
+          <span
+            style={{
+              position: "absolute",
+              top: 3,
+              left: reconstituted ? 25 : 3,
+              width: 20,
+              height: 20,
+              borderRadius: "50%",
+              background: "#fff",
+              boxShadow: "0 1px 4px rgba(0,0,0,0.22)",
+              transition: "left 0.2s ease",
+            }}
+          />
+        </button>
       </div>
 
       {error && <div style={{ color: "#ef4444", fontWeight: 700 }}>{error}</div>}
