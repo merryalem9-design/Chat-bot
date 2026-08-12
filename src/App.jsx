@@ -3026,8 +3026,9 @@ export default function ImmunizationChatBot() {
                   </button>
                 </div>
 
-                <div style={{ position: "absolute", left: "50%", transform: "translateX(-50%) translateY(-26px)" }}>
+                <div style={{ position: "absolute", left: "50%", transform: "translateX(-50%) translateY(-26px)", display: "flex", flexDirection: "column", alignItems: "center" }}>
                   <button onClick={() => setScreen("chat")} style={{ width: 72, height: 72, borderRadius: 20, background: "#fff", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 14px 28px rgba(0,0,0,0.19)", border: "none" }}><MessageCircle size={30} style={{ color: TILE_BLUE }} /></button>
+                  <div style={{ marginTop: 4, color: "#fff", fontSize: 11, fontWeight: 500 }}>Chat</div>
                 </div>
 
                 <div style={{ display: "flex", gap: 18, alignItems: "center" }}>
